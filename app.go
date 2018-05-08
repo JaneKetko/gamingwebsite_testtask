@@ -1,7 +1,10 @@
 package main
 
-import "log"
+import (
+	"gamingwebsite_testtask/server"
+)
 
 func main() {
-	log.Println("Hello World")
+	s := server.NewServer()
+	s.Start()
 }
