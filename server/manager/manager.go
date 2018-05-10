@@ -5,17 +5,17 @@ import (
 	"gamingwebsite_testtask/server/database"
 )
 
-//Manager manage players
+//Manager manage players.
 type Manager struct {
 	db database.DB
 }
 
-//CreateNewPlayer create new player in DB
+//CreateNewPlayer create new player in DB.
 func (m *Manager) CreateNewPlayer(name string) (int, error) {
 	return m.db.AddPlayer(name)
 }
 
-//GetPlayerPoints get player points
+//GetPlayerPoints get player points.
 func (m *Manager) GetPlayerPoints(playerID int) (int, error) {
 	player, err := m.db.GetPlayerByID(playerID)
 	if err != nil {
@@ -24,7 +24,7 @@ func (m *Manager) GetPlayerPoints(playerID int) (int, error) {
 	return player.Balance, nil
 }
 
-//TakePointsFromPlayer take points from player
+//TakePointsFromPlayer take points from player.
 func (m *Manager) TakePointsFromPlayer(playerID int, points int) (int, error) {
 
 	player, err := m.db.GetPlayerByID(playerID)
@@ -41,7 +41,7 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points int) (int, error) {
 	return balance, err
 }
 
-//FundPointsToPlayer fund points to player
+//FundPointsToPlayer fund points to player.
 func (m *Manager) FundPointsToPlayer(playerID int, points int) (int, error) {
 	player, err := m.db.GetPlayerByID(playerID)
 	if err != nil {

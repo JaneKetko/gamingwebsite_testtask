@@ -1,6 +1,6 @@
 package player
 
-//Player  represent player
+//Player  represent player.
 type Player struct {
 	ID      int
 	Name    string
