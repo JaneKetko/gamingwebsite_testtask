@@ -1,6 +1,14 @@
 package database
 
-import "gamingwebsite_testtask/server/player"
+import (
+	"errors"
+	"gamingwebsite_testtask/server/player"
+)
+
+var (
+	//ErrWrongID is error for wrong id.
+	ErrWrongID = errors.New("Wrong ID")
+)
 
 //DB is interface for database.
 type DB interface {
