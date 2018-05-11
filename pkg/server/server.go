@@ -19,7 +19,7 @@ func NewServer() *Server {
 	return &Server{mux.NewRouter()}
 }
 
-//Start  start server with PORT.
+//Start  start pkg with PORT.
 func (s *Server) Start() {
 	err := http.ListenAndServe(PORT, s.router)
 	if err != nil {

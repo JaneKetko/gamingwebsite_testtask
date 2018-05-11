@@ -2,12 +2,12 @@ package database
 
 import (
 	"errors"
-	"gamingwebsite_testtask/server/player"
+	"gamingwebsite_testtask/pkg/player"
 )
 
 var (
 	//ErrWrongID is error for wrong id.
-	ErrWrongID = errors.New("Wrong ID")
+	ErrWrongID = errors.New("wrong ID")
 )
 
 //DB is interface for database.

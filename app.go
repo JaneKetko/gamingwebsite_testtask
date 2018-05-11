@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gamingwebsite_testtask/server"
+	"gamingwebsite_testtask/pkg/server"
 )
 
 func main() {
