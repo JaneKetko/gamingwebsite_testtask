@@ -7,17 +7,17 @@ import (
 
 //Manager manage players.
 type Manager struct {
-	db database.DB
+	DB database.DB
 }
 
 //CreateNewPlayer create new player in DB.
 func (m *Manager) CreateNewPlayer(name string) (int, error) {
-	return m.db.AddPlayer(name)
+	return m.DB.AddPlayer(name)
 }
 
 //GetPlayerPoints get player points.
 func (m *Manager) GetPlayerPoints(playerID int) (int, error) {
-	player, err := m.db.GetPlayerByID(playerID)
+	player, err := m.DB.GetPlayerByID(playerID)
 	if err != nil {
 		return 0, err
 	}
@@ -27,7 +27,7 @@ func (m *Manager) GetPlayerPoints(playerID int) (int, error) {
 //TakePointsFromPlayer take points from player.
 func (m *Manager) TakePointsFromPlayer(playerID int, points int) (int, error) {
 
-	player, err := m.db.GetPlayerByID(playerID)
+	player, err := m.DB.GetPlayerByID(playerID)
 	if err != nil {
 		return 0, err
 	}
@@ -37,19 +37,19 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points int) (int, error) {
 	balance := player.Balance - points
 	player.Balance = balance
 
-	err = m.db.UpdatePlayer(playerID, player)
+	err = m.DB.UpdatePlayer(playerID, player)
 	return balance, err
 }
 
 //FundPointsToPlayer fund points to player.
 func (m *Manager) FundPointsToPlayer(playerID int, points int) (int, error) {
-	player, err := m.db.GetPlayerByID(playerID)
+	player, err := m.DB.GetPlayerByID(playerID)
 	if err != nil {
 		return 0, err
 	}
 	balance := player.Balance + points
 	player.Balance = balance
 
-	err = m.db.UpdatePlayer(playerID, player)
+	err = m.DB.UpdatePlayer(playerID, player)
 	return balance, err
 }

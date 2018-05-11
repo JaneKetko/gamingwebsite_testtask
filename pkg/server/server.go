@@ -1,6 +1,7 @@
 package server
 
 import (
+	"gamingwebsite_testtask/pkg/manager"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -15,8 +16,10 @@ type Server struct {
 }
 
 //NewServer create new Server instance.
-func NewServer() *Server {
-	return &Server{mux.NewRouter()}
+func NewServer(mngr manager.Manager) *Server {
+	s := &Server{mux.NewRouter()}
+	s.router = NewManagerRouter(mngr, s.router)
+	return s
 }
 
 //Start  start pkg with PORT.
