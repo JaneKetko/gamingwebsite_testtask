@@ -1,7 +1,7 @@
 package database
 
 import (
-	"gamingwebsite_testtask/pkg/player"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 )
 
 //ArrayDB is database from slice.

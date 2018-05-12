@@ -1,9 +1,10 @@
 package main
 
 import (
-	"gamingwebsite_testtask/pkg/database"
-	"gamingwebsite_testtask/pkg/manager"
-	"gamingwebsite_testtask/pkg/server"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/database"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/server"
+
 )
 
 func main() {

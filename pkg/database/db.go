@@ -2,7 +2,7 @@ package database
 
 import (
 	"errors"
-	"gamingwebsite_testtask/pkg/player"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 )
 
 var (

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"gamingwebsite_testtask/pkg/manager"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"

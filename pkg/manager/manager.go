@@ -2,7 +2,7 @@ package manager
 
 import (
 	"errors"
-	"gamingwebsite_testtask/pkg/database"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/database"
 )
 
 //Manager manage players.
