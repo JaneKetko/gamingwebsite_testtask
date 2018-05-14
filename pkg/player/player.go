@@ -1,9 +1,8 @@
 package player
 
-// TODO balance can be double.
-//Player  represent player.
+// Player represents player.
 type Player struct {
 	ID      int
 	Name    string
-	Balance int
+	Balance float32
 }

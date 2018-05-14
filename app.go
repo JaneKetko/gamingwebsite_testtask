@@ -4,7 +4,6 @@ import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/database"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/server"
-
 )
 
 func main() {

@@ -4,22 +4,20 @@ import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 )
 
-// TODO comments should have space after // (goWay)
-//ArrayDB is database from slice.
+// ArrayDB is database from slice.
 type ArrayDB struct {
 	players []player.Player
 }
 
-// TODO present simple in comments
-//GetPlayerByID return player by ID.
-func (a ArrayDB) GetPlayerByID(id int) (player.Player, error) {
+// PlayerByID returns player by ID.
+func (a ArrayDB) PlayerByID(id int) (*player.Player, error) {
 	if id < 0 || id >= len(a.players) {
-		return player.Player{}, ErrWrongID
+		return nil, ErrWrongID
 	}
-	return a.players[id], nil
+	return &a.players[id], nil
 }
 
-//AddPlayer add player.
+// AddPlayer adds player.
 func (a *ArrayDB) AddPlayer(name string) (int, error) {
 	id := len(a.players)
 	pl := player.Player{ID: id, Name: name, Balance: 0}
@@ -27,7 +25,7 @@ func (a *ArrayDB) AddPlayer(name string) (int, error) {
 	return id, nil
 }
 
-//DeletePlayer delete player if possible.
+// DeletePlayer deletes player if possible.
 func (a *ArrayDB) DeletePlayer(id int) error {
 	if id < 0 || id >= len(a.players) {
 		return ErrWrongID
@@ -36,7 +34,7 @@ func (a *ArrayDB) DeletePlayer(id int) error {
 	return nil
 }
 
-//UpdatePlayer update player with id.
+// UpdatePlayer updates player with id.
 func (a *ArrayDB) UpdatePlayer(id int, player player.Player) error {
 	if id < 0 || id >= len(a.players) {
 		return ErrWrongID
