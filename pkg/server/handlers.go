@@ -20,8 +20,9 @@ func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 	managerRouter := ManagerRouter{manager}
 	router.HandleFunc("/add/{name}", managerRouter.addPlayerHandler).
 		Methods("POST")
-	router.HandleFunc("/balance/{playerId:[0-9]+}", managerRouter.balancePlayerHandler).
-		Methods("GET")
+	router.HandleFunc("/balance", managerRouter.balancePlayerHandler).
+		Methods("GET").
+		Queries("playerId", "{playerId:[0-9]+}")
 	router.HandleFunc("/fund", managerRouter.fundPointsHandler).
 		Methods("PUT").
 		Queries("playerId", "{playerId:[0-9]+}", "points", "{points:[0-9]+}")
@@ -33,7 +34,8 @@ func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 
 // addPlayerHandler creates new player, returns id.
 func (m *ManagerRouter) addPlayerHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
+	//name := r.FormValue("name")
+	name := mux.Vars(r)["name"]
 	if name == "" {
 		Error(w, http.StatusBadRequest, "wrong name")
 		return
