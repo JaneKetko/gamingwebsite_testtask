@@ -12,6 +12,8 @@ var (
 
 //DB is interface for database.
 type DB interface {
+	// TODO it is better return pointers, not object
+	// TODO it is better don't use verbs like get, set, put and etc., if we can (go way)
 	GetPlayerByID(id int) (player.Player, error)
 	AddPlayer(name string) (int, error)
 	DeletePlayer(id int) error

@@ -4,11 +4,13 @@ import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 )
 
+// TODO comments should have space after // (goWay)
 //ArrayDB is database from slice.
 type ArrayDB struct {
 	players []player.Player
 }
 
+// TODO present simple in comments
 //GetPlayerByID return player by ID.
 func (a ArrayDB) GetPlayerByID(id int) (player.Player, error) {
 	if id < 0 || id >= len(a.players) {

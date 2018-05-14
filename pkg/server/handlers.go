@@ -1,5 +1,6 @@
 package server
 
+// TODO standard libs ordering!
 import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
 	"github.com/gorilla/mux"
@@ -7,6 +8,7 @@ import (
 	"strconv"
 )
 
+// TODO verb?
 //ManagerRouter for manager
 type ManagerRouter struct {
 	manager manager.Manager
@@ -17,12 +19,11 @@ func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 
 	managerRouter := ManagerRouter{manager}
 
-	router.HandleFunc("/add", managerRouter.addPlayerHandler).
+	router.HandleFunc("/add/{name}", managerRouter.addPlayerHandler).
 		Methods("POST").
 		Queries("name", "{name}")
-	router.HandleFunc("/balance", managerRouter.balancePlayerHandler).
-		Methods("GET").
-		Queries("playerId", "{playerId:[0-9]+}")
+	router.HandleFunc("/balance/{playerId:[0-9]+}", managerRouter.balancePlayerHandler).
+		Methods("GET")
 	router.HandleFunc("/fund", managerRouter.fundPointsHandler).
 		Methods("PUT").
 		Queries("playerId", "{playerId:[0-9]+}", "points", "{points:[0-9]+}")
@@ -52,6 +53,7 @@ func (m *ManagerRouter) addPlayerHandler(w http.ResponseWriter, r *http.Request)
 func (m *ManagerRouter) balancePlayerHandler(w http.ResponseWriter, r *http.Request) {
 	playerID, err := getIntValue(r, "playerId")
 	if err != nil {
+		// TODO error wrapping
 		Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -103,6 +105,7 @@ func (m *ManagerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request
 	JSON(w, http.StatusOK, balance)
 }
 
+// TODO it is better move this function to other file.
 func getIntValue(r *http.Request, key string) (int, error) {
 	val := r.FormValue(key)
 	return strconv.Atoi(val)
