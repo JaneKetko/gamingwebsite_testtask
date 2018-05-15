@@ -18,8 +18,9 @@ type ManagerRouter struct {
 func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 
 	managerRouter := ManagerRouter{manager}
-	router.HandleFunc("/add/{name}", managerRouter.addPlayerHandler).
-		Methods("POST")
+	router.HandleFunc("/add", managerRouter.addPlayerHandler).
+		Methods("POST").
+		Queries("name", "{name}")
 	router.HandleFunc("/balance", managerRouter.balancePlayerHandler).
 		Methods("GET").
 		Queries("playerId", "{playerId:[0-9]+}")
