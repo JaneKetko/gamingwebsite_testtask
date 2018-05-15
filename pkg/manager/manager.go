@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/database"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 )
 
 var (
@@ -12,9 +12,17 @@ var (
 	ErrNotEnoughBalance = errors.New("player has not enough balance")
 )
 
+// DB is interface for database.
+type DB interface {
+	PlayerByID(id int) (*player.Player, error)
+	AddPlayer(name string) (int, error)
+	DeletePlayer(id int) error
+	UpdatePlayer(id int, player player.Player) error
+}
+
 // Manager manages players.
 type Manager struct {
-	DB database.DB
+	DB DB
 }
 
 // CreateNewPlayer creates new player in DB.
@@ -24,32 +32,32 @@ func (m *Manager) CreateNewPlayer(name string) (int, error) {
 
 // GetPlayerPoints gets player points.
 func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
-	player, err := m.DB.PlayerByID(playerID)
+	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
-	return player.Balance, nil
+	return pl.Balance, nil
 }
 
 // TakePointsFromPlayer takes points from player.
 func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, error) {
-	player, err := m.DB.PlayerByID(playerID)
+	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
-	if player.Balance < points {
+	if pl.Balance < points {
 		return 0, ErrNotEnoughBalance
 	}
-	player.Balance -= points
-	return player.Balance, m.DB.UpdatePlayer(playerID, *player)
+	pl.Balance -= points
+	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
 }
 
 // FundPointsToPlayer funds points to player.
 func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, error) {
-	player, err := m.DB.PlayerByID(playerID)
+	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
-	player.Balance += points
-	return player.Balance, m.DB.UpdatePlayer(playerID, *player)
+	pl.Balance += points
+	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
 }

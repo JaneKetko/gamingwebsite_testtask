@@ -9,9 +9,8 @@ import (
 type PlayerModel struct {
 	ID       bson.ObjectId `bson:"_id,omitempty"`
 	PlayerID int           `bson:"playerId"`
-	// TODO write bson tags in the all places.
-	Name     string
-	Balance  float32
+	Name     string        `bson:"name"`
+	Balance  float32       `bson:"balance"`
 }
 
 // NewPlayerModel creates new playerModel from player.Player.

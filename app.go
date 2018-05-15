@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/database/mongo"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/mongo"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/server"
 )
 
