@@ -48,5 +48,6 @@ func (ps *PlayerService) UpdatePlayer(id int, player player.Player) error {
 	if err != nil {
 		return err
 	}
+	// TODO add index to playerId in mongoDB and update players using just this playerID
 	return ps.players.Update(bson.M{"_id": model.ID}, bson.M{"$set": bson.M{"balance": player.Balance}})
 }

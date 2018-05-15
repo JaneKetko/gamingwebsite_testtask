@@ -4,6 +4,8 @@ import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 )
 
+// TODO delete it.
+
 // ArrayDB is database from slice.
 type ArrayDB struct {
 	players []player.Player

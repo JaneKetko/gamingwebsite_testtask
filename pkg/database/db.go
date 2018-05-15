@@ -11,6 +11,7 @@ var (
 	ErrWrongID = errors.New("wrong ID")
 )
 
+// TODO move this interface to manager.go and don't use double putting.
 // DB is interface for database.
 type DB interface {
 	PlayerByID(id int) (*player.Player, error)

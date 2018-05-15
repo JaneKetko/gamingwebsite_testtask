@@ -17,6 +17,7 @@ type ManagerRouter struct {
 // NewManagerRouter returns new ManagerRouter.
 func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 
+	// TODO you didn't move all playerID to url
 	managerRouter := ManagerRouter{manager}
 	router.HandleFunc("/add", managerRouter.addPlayerHandler).
 		Methods(http.MethodPost).
@@ -104,7 +105,7 @@ func (m *ManagerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request
 	JSON(w, http.StatusOK, balance)
 }
 
-// TODO it is better move this function to other file.
+// TODO it is better move this functions to other file.
 func getIntValue(r *http.Request, key string) (int, error) {
 	val := r.FormValue(key)
 	return strconv.Atoi(val)
