@@ -3,17 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/database"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/database/mongo"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/server"
 )
-
-// TODO delete it.
-// ManagerWithArrayDB creates manager with arrayDB as database.
-func ManagerWithArrayDB() manager.Manager {
-	return manager.Manager{DB: new(database.ArrayDB)}
-}
 
 func main() {
 
