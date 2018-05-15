@@ -4,6 +4,7 @@ import (
 	"github.com/globalsign/mgo"
 )
 
+// TODO take all this variables from config file, environments of flags.
 var (
 	// Address is Mongo address.
 	Address = "127.0.0.1:27017"
@@ -27,6 +28,7 @@ func (s *Session) Open() error {
 
 // Close closes Mongo session.
 func (s *Session) Close() {
+	// TODO you don't need this function.
 	if s.session != nil {
 		s.session.Close()
 	}

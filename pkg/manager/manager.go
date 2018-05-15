@@ -33,7 +33,6 @@ func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
 
 // TakePointsFromPlayer takes points from player.
 func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, error) {
-
 	player, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)

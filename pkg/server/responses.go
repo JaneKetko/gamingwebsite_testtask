@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+// TODO add unit tests to Error and JSON
+
 // Error response.
 func Error(w http.ResponseWriter, code int, message string) {
 	http.Error(w, message, code)

@@ -9,6 +9,7 @@ import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/server"
 )
 
+// TODO delete it.
 // ManagerWithArrayDB creates manager with arrayDB as database.
 func ManagerWithArrayDB() manager.Manager {
 	return manager.Manager{DB: new(database.ArrayDB)}
@@ -17,8 +18,8 @@ func ManagerWithArrayDB() manager.Manager {
 func main() {
 
 	var session mongo.Session
+	// TODO you can process this error in init function of the package.
 	err := session.Open()
-	defer session.Close()
 	if err != nil {
 		log.Fatalf("cannot create mongo session: %v", err)
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// TODO set this port via configuration.
 // PORT is default port.
 const PORT = "8080"
 
