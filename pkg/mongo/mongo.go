@@ -12,8 +12,10 @@ var (
 	Address = "127.0.0.1:27017"
 	// DBName is name of MongoDB.
 	DBName = "GamingDB"
-	//PlayerCollectionName is name of players collection.
+	// PlayerCollectionName is name of players collection.
 	PlayerCollectionName = "players"
+	// CounterCollectionName is collection with counter for player.
+	CounterCollectionName = "playercounter"
 )
 
 // Session is Mongo session.
@@ -35,5 +37,14 @@ func init() {
 // Players return new player service from DB.
 func Players() PlayerService {
 	playerCollection := session.session.DB(DBName).C(PlayerCollectionName)
-	return NewPlayerService(playerCollection)
+	index := mgo.Index{
+		Key:    []string{"playerId"},
+		Unique: true,
+	}
+	err := playerCollection.EnsureIndex(index)
+	if err != nil {
+		log.Fatalf("cannot create mongo collection index: %v", err)
+	}
+	CounterCollection := session.session.DB(DBName).C(CounterCollectionName)
+	return NewPlayerService(playerCollection, CounterCollection)
 }
