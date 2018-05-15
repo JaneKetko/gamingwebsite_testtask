@@ -1,6 +1,8 @@
 package mongo
 
 import (
+	"log"
+
 	"github.com/globalsign/mgo"
 )
 
@@ -19,23 +21,19 @@ type Session struct {
 	session *mgo.Session
 }
 
-// Open opens Mongo session.
-func (s *Session) Open() error {
-	var err error
-	s.session, err = mgo.Dial(Address)
-	return err
-}
+var session Session
 
-// Close closes Mongo session.
-func (s *Session) Close() {
-	// TODO you don't need this function.
-	if s.session != nil {
-		s.session.Close()
+func init() {
+	var err error
+	session.session, err = mgo.Dial(Address)
+	if err != nil {
+		log.Fatalf("cannot create mongo session: %v", err)
 	}
+
 }
 
 // Players return new player service from DB.
-func (s *Session) Players() PlayerService {
-	playerCollection := s.session.DB(DBName).C(PlayerCollectionName)
+func Players() PlayerService {
+	playerCollection := session.session.DB(DBName).C(PlayerCollectionName)
 	return NewPlayerService(playerCollection)
 }
