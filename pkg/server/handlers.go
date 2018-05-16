@@ -16,28 +16,24 @@ type ManagerRouter struct {
 
 // NewManagerRouter returns new ManagerRouter.
 func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
-
-	// TODO you didn't move all playerID to url
 	managerRouter := ManagerRouter{manager}
 	router.HandleFunc("/add", managerRouter.addPlayerHandler).
 		Methods(http.MethodPost).
 		Queries("name", "{name}")
-	router.HandleFunc("/balance", managerRouter.balancePlayerHandler).
-		Methods(http.MethodGet).
-		Queries("playerId", "{playerId:[0-9]+}")
-	router.HandleFunc("/fund", managerRouter.fundPointsHandler).
+	router.HandleFunc("/balance/{playerId:[0-9]+}", managerRouter.balancePlayerHandler).
+		Methods(http.MethodGet)
+	router.HandleFunc("/fund/{playerId:[0-9]+}", managerRouter.fundPointsHandler).
 		Methods(http.MethodPut).
-		Queries("playerId", "{playerId:[0-9]+}", "points", "{points:[0-9]+}")
-	router.HandleFunc("/take", managerRouter.takePointsHandler).
+		Queries("points", "{points:[0-9]*\\.?[0-9]{0,2}}")
+	router.HandleFunc("/take/{playerId:[0-9]+}", managerRouter.takePointsHandler).
 		Methods(http.MethodPut).
-		Queries("playerId", "{playerId:[0-9]+}", "points", "{points:[0-9]+}")
+		Queries("points", "{points:[0-9]*\\.?[0-9]{0,2}}")
 	return router
 }
 
 // addPlayerHandler creates new player, returns id.
 func (m *ManagerRouter) addPlayerHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
-	//name := mux.Vars(r)["name"]
+	name := mux.Vars(r)["name"]
 	if name == "" {
 		Error(w, http.StatusBadRequest, "wrong name")
 		return
@@ -107,12 +103,12 @@ func (m *ManagerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request
 
 // TODO it is better move this functions to other file.
 func getIntValue(r *http.Request, key string) (int, error) {
-	val := r.FormValue(key)
+	val := mux.Vars(r)[key]
 	return strconv.Atoi(val)
 }
 
 func getFloatValue(r *http.Request, key string) (float32, error) {
-	val := r.FormValue(key)
+	val := mux.Vars(r)[key]
 	f64, err := strconv.ParseFloat(val, 32)
 	return float32(f64), err
 }
