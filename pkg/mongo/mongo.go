@@ -1,21 +1,10 @@
 package mongo
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/globalsign/mgo"
-)
-
-// TODO take all this variables from config file, environments of flags.
-var (
-	// Address is Mongo address.
-	Address = "127.0.0.1:27017"
-	// DBName is name of MongoDB.
-	DBName = "GamingDB"
-	// PlayerCollectionName is name of players collection.
-	PlayerCollectionName = "players"
-	// CounterCollectionName is collection with counter for player.
-	CounterCollectionName = "playercounter"
 )
 
 // Session is Mongo session.
@@ -23,20 +12,16 @@ type Session struct {
 	session *mgo.Session
 }
 
-var session Session
-
-func init() {
+// Open opens new session with address.
+func (s *Session) Open(address string) error {
 	var err error
-	session.session, err = mgo.Dial(Address)
-	if err != nil {
-		log.Fatalf("cannot create mongo session: %v", err)
-	}
-
+	s.session, err = mgo.Dial(address)
+	return err
 }
 
 // Players return new player service from DB.
-func Players() PlayerService {
-	playerCollection := session.session.DB(DBName).C(PlayerCollectionName)
+func (s *Session) Players(dbname string, players string) PlayerService {
+	playerCollection := s.session.DB(dbname).C(players)
 	index := mgo.Index{
 		Key:    []string{"playerId"},
 		Unique: true,
@@ -45,6 +30,7 @@ func Players() PlayerService {
 	if err != nil {
 		log.Fatalf("cannot create mongo collection index: %v", err)
 	}
-	CounterCollection := session.session.DB(DBName).C(CounterCollectionName)
+	// CounterCollection is collection players+counter
+	CounterCollection := s.session.DB(dbname).C(fmt.Sprintf("%scounter", players))
 	return NewPlayerService(playerCollection, CounterCollection)
 }

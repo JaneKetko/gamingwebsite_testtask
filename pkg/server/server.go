@@ -1,17 +1,12 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
 	"github.com/gorilla/mux"
 )
-
-// TODO set this port via configuration.
-// PORT is default port.
-const PORT = "8080"
 
 // Server is router.
 type Server struct {
@@ -25,9 +20,9 @@ func NewServer(mngr manager.Manager) *Server {
 	return s
 }
 
-// Start  starts pkg with PORT.
-func (s *Server) Start() {
-	err := http.ListenAndServe(fmt.Sprintf(":%s", PORT), s.router)
+// Start  starts pkg with addr.
+func (s *Server) Start(addr string) {
+	err := http.ListenAndServe(addr, s.router)
 	if err != nil {
 		log.Fatal(err)
 	}
