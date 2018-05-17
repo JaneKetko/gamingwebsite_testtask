@@ -28,6 +28,7 @@ func (s *Session) Players(dbname string, players string) PlayerService {
 	}
 	err := playerCollection.EnsureIndex(index)
 	if err != nil {
+		// TODO you print errors there, but better return this error to main.go and show all errors there.
 		log.Fatalf("cannot create mongo collection index: %v", err)
 	}
 	// CounterCollection is collection players+counter

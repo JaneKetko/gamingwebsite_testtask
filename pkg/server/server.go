@@ -20,8 +20,9 @@ func NewServer(mngr manager.Manager) *Server {
 	return s
 }
 
-// Start  starts pkg with addr.
+// Start starts pkg with addr.
 func (s *Server) Start(addr string) {
+	// TODO log.Fatal(http.ListenAndServe(addr, s.router)) - is the same and more popular.
 	err := http.ListenAndServe(addr, s.router)
 	if err != nil {
 		log.Fatal(err)

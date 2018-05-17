@@ -9,11 +9,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// TODO you don't need export this structure.
 // ManagerRouter is for manager.
 type ManagerRouter struct {
 	manager manager.Manager
 }
 
+// TODO you don't need export this function.
 // NewManagerRouter returns new ManagerRouter.
 func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 	managerRouter := ManagerRouter{manager}
@@ -83,6 +85,7 @@ func (m *ManagerRouter) fundPointsHandler(w http.ResponseWriter, r *http.Request
 
 ///takePointsHandler takes points if possible from player, returns new balance.
 func (m *ManagerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO you can move getting of playerID and point to other function, because you do it twice.
 	playerID, err := getIntValue(r, "playerId")
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get playerId: %v", err))
