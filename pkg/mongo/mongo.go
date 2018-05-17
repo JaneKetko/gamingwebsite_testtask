@@ -32,5 +32,15 @@ func (s *Session) Players(dbname string, players string) PlayerService {
 	}
 	// CounterCollection is collection players+counter
 	CounterCollection := s.session.DB(dbname).C(fmt.Sprintf("%scounter", players))
+
+	// dirty hack for adding counter
+	type counter struct {
+		ID       string `bson:"_id,omitempty"`
+		PlayerID int    `bson:"playerId"`
+	}
+	err = CounterCollection.Insert(counter{ID: "playerIdCounter", PlayerID: 0})
+	if err != nil {
+		log.Fatalf("cannot create counter: %v", err)
+	}
 	return NewPlayerService(playerCollection, CounterCollection)
 }
