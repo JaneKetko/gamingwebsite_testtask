@@ -6,7 +6,8 @@ import (
 	"net/http"
 )
 
-// TODO add unit tests to Error and JSON
+// TODO add unit tests to Error and JSON.
+// TODO add verbs to comments.
 
 // Error response.
 func Error(w http.ResponseWriter, code int, message string) {
