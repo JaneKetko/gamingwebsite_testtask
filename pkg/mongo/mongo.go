@@ -37,9 +37,17 @@ func (s *Session) Players(dbname string, players string) (*PlayerService, error)
 		ID       string `bson:"_id,omitempty"`
 		PlayerID int    `bson:"playerId"`
 	}
-	err = CounterCollection.Insert(counter{ID: "playerIdCounter", PlayerID: 0})
+
+	count, err := CounterCollection.FindId("playerIdCounter").Count() //check if counter already exists
 	if err != nil {
-		return nil, fmt.Errorf("cannot create counter: %v", err)
+		return nil, fmt.Errorf("cannot check if counter exists: %v", err)
+	}
+	if count == 0 {
+		err = CounterCollection.Insert(counter{ID: "playerIdCounter", PlayerID: 0})
+
+		if err != nil {
+			return nil, fmt.Errorf("cannot create counter: %v", err)
+		}
 	}
 	ps := NewPlayerService(playerCollection, CounterCollection)
 	return &ps, nil
