@@ -9,32 +9,29 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO you don't need export this structure.
-// ManagerRouter is for manager.
-type ManagerRouter struct {
+// managerRouter is for manager.
+type managerRouter struct {
 	manager manager.Manager
 }
 
-// TODO you don't need export this function.
-// NewManagerRouter returns new ManagerRouter.
-func NewManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
-	managerRouter := ManagerRouter{manager}
-	router.HandleFunc("/add", managerRouter.addPlayerHandler).
+func newManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
+	mngrRouter := managerRouter{manager}
+	router.HandleFunc("/add", mngrRouter.addPlayerHandler).
 		Methods(http.MethodPost).
 		Queries("name", "{name}")
-	router.HandleFunc("/balance/{playerId:[0-9]+}", managerRouter.balancePlayerHandler).
+	router.HandleFunc("/balance/{playerId:[0-9]+}", mngrRouter.balancePlayerHandler).
 		Methods(http.MethodGet)
-	router.HandleFunc("/fund/{playerId:[0-9]+}", managerRouter.fundPointsHandler).
+	router.HandleFunc("/fund/{playerId:[0-9]+}", mngrRouter.fundPointsHandler).
 		Methods(http.MethodPut).
 		Queries("points", "{points:[0-9]*\\.?[0-9]{0,2}}")
-	router.HandleFunc("/take/{playerId:[0-9]+}", managerRouter.takePointsHandler).
+	router.HandleFunc("/take/{playerId:[0-9]+}", mngrRouter.takePointsHandler).
 		Methods(http.MethodPut).
 		Queries("points", "{points:[0-9]*\\.?[0-9]{0,2}}")
 	return router
 }
 
 // addPlayerHandler creates new player, returns id.
-func (m *ManagerRouter) addPlayerHandler(w http.ResponseWriter, r *http.Request) {
+func (m *managerRouter) addPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 	if name == "" {
 		Error(w, http.StatusBadRequest, "wrong name")
@@ -49,7 +46,7 @@ func (m *ManagerRouter) addPlayerHandler(w http.ResponseWriter, r *http.Request)
 }
 
 // balancePlayerHandler returns player balance.
-func (m *ManagerRouter) balancePlayerHandler(w http.ResponseWriter, r *http.Request) {
+func (m *managerRouter) balancePlayerHandler(w http.ResponseWriter, r *http.Request) {
 	playerID, err := getIntValue(r, "playerId")
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get playerId: %v", err))
@@ -64,15 +61,10 @@ func (m *ManagerRouter) balancePlayerHandler(w http.ResponseWriter, r *http.Requ
 }
 
 // fundPointsHandler gives points to player, returns new balance.
-func (m *ManagerRouter) fundPointsHandler(w http.ResponseWriter, r *http.Request) {
-	playerID, err := getIntValue(r, "playerId")
+func (m *managerRouter) fundPointsHandler(w http.ResponseWriter, r *http.Request) {
+	playerID, points, err := getPlayerIDAndPoints(r)
 	if err != nil {
-		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get playerId: %v", err))
-		return
-	}
-	points, err := getFloatValue(r, "points")
-	if err != nil {
-		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get points: %v", err))
+		Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	balance, err := m.manager.FundPointsToPlayer(playerID, points)
@@ -84,16 +76,10 @@ func (m *ManagerRouter) fundPointsHandler(w http.ResponseWriter, r *http.Request
 }
 
 ///takePointsHandler takes points if possible from player, returns new balance.
-func (m *ManagerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO you can move getting of playerID and point to other function, because you do it twice.
-	playerID, err := getIntValue(r, "playerId")
+func (m *managerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request) {
+	playerID, points, err := getPlayerIDAndPoints(r)
 	if err != nil {
-		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get playerId: %v", err))
-		return
-	}
-	points, err := getFloatValue(r, "points")
-	if err != nil {
-		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get points: %v", err))
+		Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	balance, err := m.manager.TakePointsFromPlayer(playerID, points)
@@ -102,6 +88,18 @@ func (m *ManagerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 	JSON(w, http.StatusOK, balance)
+}
+
+func getPlayerIDAndPoints(r *http.Request) (int, float32, error) {
+	playerID, err := getIntValue(r, "playerId")
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot get playerId: %v", err)
+	}
+	points, err := getFloatValue(r, "points")
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot get points: %v", err)
+	}
+	return playerID, points, nil
 }
 
 // TODO it is better move this functions to other file.

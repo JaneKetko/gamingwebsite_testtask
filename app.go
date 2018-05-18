@@ -20,8 +20,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot start MongoDB: %v", err)
 	}
-	players := session.Players(opts.DBName, opts.PlayerCollection)
-	mngr := manager.Manager{DB: &players}
+	players, err := session.Players(opts.DBName, opts.PlayerCollection)
+	if err != nil {
+		log.Fatalf("Cannot get player collection: %v", err)
+	}
+	mngr := manager.Manager{DB: players}
 	s := server.NewServer(mngr)
 	s.Start(opts.ServerAddress)
 }

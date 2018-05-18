@@ -7,19 +7,19 @@ import (
 )
 
 // TODO add unit tests to Error and JSON.
-// TODO add verbs to comments.
 
-// Error response.
+// Error is error response.
 func Error(w http.ResponseWriter, code int, message string) {
 	http.Error(w, message, code)
 }
 
-// JSON response.
+// JSON is success response with http code and json(payload) as message.
 func JSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
 		log.Println(err)
 		Error(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)

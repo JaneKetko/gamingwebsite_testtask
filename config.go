@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 
+	"fmt"
+
 	"github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v2"
 )
@@ -27,15 +29,14 @@ func (s *settings) Parse() error {
 	parser := flags.NewParser(s, flags.Default|flags.IgnoreUnknown)
 	_, err := parser.Parse()
 	if err != nil {
-		// TODO you should wrap your error. This error won't readable in the future.
-		return err
+		return fmt.Errorf("parse error: %v", err)
 	}
 	if s.ConfigFile != "" {
 		err = s.LoadOptionsFromFile()
 		if err != nil {
-			// TODO it is better add space between your error and LoadOptionsFromFile's error.
 			// TODO why don't you return this error like return err with this formatting?
-			log.Printf("cannot read settings from file:%v", err)
+			// we don`t return error, because if we can not load settings from file, then we use default settings
+			log.Printf("cannot read settings from file: %v", err)
 		}
 	}
 	return nil
