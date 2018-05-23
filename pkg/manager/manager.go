@@ -7,6 +7,7 @@ import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 )
 
+//go:generate mockery -name=DB -inpkg
 var (
 	// ErrNotEnoughBalance is error for not enough balance.
 	ErrNotEnoughBalance = errors.New("player has not enough balance")
