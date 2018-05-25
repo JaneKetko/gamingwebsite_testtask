@@ -26,18 +26,30 @@ func TestError(t *testing.T) {
 }
 
 func TestJSON(t *testing.T) {
-	rec := httptest.NewRecorder()
-	expected := "Some message"
+	t.Run("Success", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		expected := "Some message"
 
-	JSON(rec, http.StatusOK, expected)
-	res := rec.Result()
-	defer res.Body.Close()
+		JSON(rec, http.StatusOK, expected)
+		res := rec.Result()
+		defer res.Body.Close()
 
-	assert.Equal(t, http.StatusOK, res.StatusCode)
-	b, err := ioutil.ReadAll(res.Body)
-	assert.NoError(t, err)
-	var received string
-	err = json.Unmarshal(b, &received)
-	assert.NoError(t, err)
-	assert.Equal(t, expected, received)
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+		b, err := ioutil.ReadAll(res.Body)
+		assert.NoError(t, err)
+		var received string
+		err = json.Unmarshal(b, &received)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, received)
+	})
+
+	t.Run("MarshalError", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		// json.Marshal return error for function values
+		JSON(rec, http.StatusOK, func() {})
+		res := rec.Result()
+		defer res.Body.Close()
+		assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+	})
+
 }
