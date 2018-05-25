@@ -138,7 +138,7 @@ func TestManagerRouter_takePointsHandler(t *testing.T) {
 		e.Request(http.MethodPut, "/take/2").WithQuery("points", "9876543210987654321098765432109876543210.91").
 			Expect().Status(http.StatusBadRequest)
 	})
-	// TODO: is it enough to check only one error possible error from DBManager?
+	// TODO: is it enough to check only one possible error from DBManager?
 	t.Run("DBManagerError", func(t *testing.T) {
 		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
 		e.Request(http.MethodPut, "/take/3").WithQuery("points", 2.5).
