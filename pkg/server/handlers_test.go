@@ -70,7 +70,6 @@ func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 		e.Request(http.MethodGet, "/balance/wrongid").
 			Expect().Status(http.StatusNotFound)
 	})
-
 }
 
 func TestManagerRouter_fundPointsHandler(t *testing.T) {
