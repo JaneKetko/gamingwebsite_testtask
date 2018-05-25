@@ -23,10 +23,10 @@ func newManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 		Methods(http.MethodGet)
 	router.HandleFunc("/fund/{playerId:[0-9]+}", mngrRouter.fundPointsHandler).
 		Methods(http.MethodPut).
-		Queries("points", "{points:[0-9]*\\.?[0-9]{0,2}}")
+		Queries("points", "{points:[0-9]+\\.?[0-9]{0,2}}")
 	router.HandleFunc("/take/{playerId:[0-9]+}", mngrRouter.takePointsHandler).
 		Methods(http.MethodPut).
-		Queries("points", "{points:[0-9]*\\.?[0-9]{0,2}}")
+		Queries("points", "{points:[0-9]+\\.?[0-9]{0,2}}")
 	return router
 }
 
