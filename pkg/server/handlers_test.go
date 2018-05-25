@@ -72,3 +72,76 @@ func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 	})
 
 }
+
+func TestManagerRouter_fundPointsHandler(t *testing.T) {
+	db := &manager.MockDB{}
+	m := newManagerRouter(manager.Manager{DB: db}, mux.NewRouter())
+	server := httptest.NewServer(m)
+	defer server.Close()
+	e := httpexpect.New(t, server.URL)
+
+	t.Run("Success", func(t *testing.T) {
+		db.On("PlayerByID", 1).Return(&player.Player{
+			ID:      1,
+			Balance: 1.5,
+		}, nil)
+		db.On("UpdatePlayer", 1, player.Player{
+			ID:      1,
+			Balance: 4.0,
+		}).Return(nil)
+		e.Request(http.MethodPut, "/fund/1").WithQuery("points", 2.5).
+			Expect().Status(http.StatusOK).JSON().Number().Equal(4.0)
+	})
+
+	t.Run("PlayerParseIDError", func(t *testing.T) {
+		e.Request(http.MethodPut, "/fund/98765432109876543210").WithQuery("points", 2.5).
+			Expect().Status(http.StatusBadRequest)
+	})
+	t.Run("PlayerParseFloatError", func(t *testing.T) {
+		e.Request(http.MethodPut, "/fund/2").WithQuery("points", "9876543210987654321098765432109876543210.91").
+			Expect().Status(http.StatusBadRequest)
+	})
+
+	t.Run("DBError", func(t *testing.T) {
+		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
+		e.Request(http.MethodPut, "/fund/3").WithQuery("points", 2.5).
+			Expect().Status(http.StatusBadRequest)
+	})
+}
+
+func TestManagerRouter_takePointsHandler(t *testing.T) {
+	db := &manager.MockDB{}
+	m := newManagerRouter(manager.Manager{DB: db}, mux.NewRouter())
+	server := httptest.NewServer(m)
+	defer server.Close()
+	e := httpexpect.New(t, server.URL)
+
+	t.Run("Success", func(t *testing.T) {
+		db.On("PlayerByID", 1).Return(&player.Player{
+			ID:      1,
+			Balance: 4.0,
+		}, nil)
+		db.On("UpdatePlayer", 1, player.Player{
+			ID:      1,
+			Balance: 1.5,
+		}).Return(nil)
+		e.Request(http.MethodPut, "/take/1").WithQuery("points", 2.5).
+			Expect().Status(http.StatusOK).JSON().Number().Equal(1.5)
+	})
+
+	t.Run("PlayerParseIDError", func(t *testing.T) {
+		e.Request(http.MethodPut, "/take/98765432109876543210").WithQuery("points", 2.5).
+			Expect().Status(http.StatusBadRequest)
+	})
+	//TODO: do we need this test???
+	t.Run("PlayerParseFloatError", func(t *testing.T) {
+		e.Request(http.MethodPut, "/take/2").WithQuery("points", "9876543210987654321098765432109876543210.91").
+			Expect().Status(http.StatusBadRequest)
+	})
+	// TODO: is it enough to check only one error possible error from DBManager?
+	t.Run("DBManagerError", func(t *testing.T) {
+		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
+		e.Request(http.MethodPut, "/take/3").WithQuery("points", 2.5).
+			Expect().Status(http.StatusBadRequest)
+	})
+}
