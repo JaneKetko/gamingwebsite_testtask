@@ -3,7 +3,6 @@ package manager
 import (
 	"errors"
 	"testing"
-
 	"fmt"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
@@ -15,19 +14,19 @@ func TestManager_CreateNewPlayer(t *testing.T) {
 	m := Manager{db}
 
 	tests := []struct {
-		testName      string
+		name          string
 		playerName    string
 		expectedID    int
 		expectedError error
 	}{
 		{
-			testName:      "CreateNewPlayer Success",
+			name:          "CreateNewPlayer Success",
 			playerName:    "player1",
 			expectedID:    1,
 			expectedError: nil,
 		},
 		{
-			testName:      "CreateNewPlayer Error",
+			name:          "CreateNewPlayer Error",
 			playerName:    "player2",
 			expectedError: errors.New("wrong id"),
 		},
@@ -37,7 +36,7 @@ func TestManager_CreateNewPlayer(t *testing.T) {
 		db.On("AddPlayer", tt.playerName).Return(tt.expectedID, tt.expectedError)
 	}
 	for _, tt := range tests {
-		t.Run(tt.testName, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			id, err := m.CreateNewPlayer(tt.playerName)
 			if tt.expectedError != nil {
 				assert.Error(t, err, tt.expectedError.Error())
@@ -56,13 +55,13 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 	m := Manager{db}
 
 	tests := []struct {
-		testName        string
+		name            string
 		playerID        int
 		expectedPlayer  *player.Player
 		expectedDBError error
 	}{
 		{
-			testName: "GetPlayerPoints Success",
+			name:     "GetPlayerPoints Success",
 			playerID: 1,
 			expectedPlayer: &player.Player{
 				ID:      1,
@@ -71,7 +70,7 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 			expectedDBError: nil,
 		},
 		{
-			testName:        "GetPlayerPoints Error",
+			name:            "GetPlayerPoints Error",
 			playerID:        2,
 			expectedPlayer:  nil,
 			expectedDBError: errors.New("wrong id"),
@@ -81,7 +80,7 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 		db.On("PlayerByID", tt.playerID).Return(tt.expectedPlayer, tt.expectedDBError)
 	}
 	for _, tt := range tests {
-		t.Run(tt.testName, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			balance, err := m.GetPlayerPoints(tt.playerID)
 			if tt.expectedDBError != nil {
 				assert.Error(t, err, fmt.Sprintf("cannot get player ID: %v", tt.expectedDBError))

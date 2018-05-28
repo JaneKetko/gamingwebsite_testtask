@@ -34,8 +34,6 @@ func (s *settings) Parse() error {
 	if s.ConfigFile != "" {
 		err = s.LoadOptionsFromFile()
 		if err != nil {
-			// TODO why don't you return this error like return err with this formatting?
-			// we don`t return error, because if we can not load settings from file, then we use default settings
 			log.Printf("cannot read settings from file: %v", err)
 		}
 	}
