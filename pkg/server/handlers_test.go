@@ -1,16 +1,16 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"errors"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
 	"github.com/gavv/httpexpect"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestManagerRouter_AddPlayerHandler(t *testing.T) {
@@ -21,21 +21,47 @@ func TestManagerRouter_AddPlayerHandler(t *testing.T) {
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
 
-	t.Run("Success", func(t *testing.T) {
-		db.On("AddPlayer", "player1").Return(1, nil)
-		e.Request(http.MethodPost, "/add").WithQuery("name", "player1").
-			Expect().Status(http.StatusCreated).JSON().Number().Equal(1)
-	})
-	t.Run("WrongName", func(t *testing.T) {
-		e.Request(http.MethodPost, "/add").WithQuery("name", "").
-			Expect().Status(http.StatusBadRequest).
-			Body().Contains("wrong name") // TODO:do we need to check error message or only status?
-	})
-	t.Run("DBError", func(t *testing.T) {
-		db.On("AddPlayer", "player2").Return(0, errors.New("cannot add new player"))
-		e.Request(http.MethodPost, "/add").WithQuery("name", "player2").
-			Expect().Status(http.StatusBadRequest) //same question as above
-	})
+	type dbArguments struct {
+		playerName  string
+		returnID    int
+		returnError error
+	}
+	tt := []struct {
+		name           string
+		dbArgs         *dbArguments
+		expectedStatus int
+		expectedValue  int
+	}{
+		{
+			name:           "Success",
+			dbArgs:         &dbArguments{playerName: "player1", returnID: 1, returnError: nil},
+			expectedStatus: http.StatusCreated,
+			expectedValue:  1,
+		},
+		{
+			name:           "WrongName",
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "DBError",
+			dbArgs:         &dbArguments{playerName: "player2", returnID: 0, returnError: errors.New("cannot add new player")},
+			expectedStatus: http.StatusBadRequest,
+		},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			playerName := ""
+			if tc.dbArgs != nil {
+				db.On("AddPlayer", tc.dbArgs.playerName).Return(tc.dbArgs.returnID, tc.dbArgs.returnError)
+				playerName = tc.dbArgs.playerName
+			}
+			res := e.Request(http.MethodPost, "/add").WithQuery("name", playerName).Expect()
+			res.Status(tc.expectedStatus)
+			if tc.expectedValue != 0 {
+				res.JSON().Number().Equal(tc.expectedValue)
+			}
+		})
+	}
 	db.AssertExpectations(t)
 }
 
@@ -46,31 +72,60 @@ func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
 
-	t.Run("Success", func(t *testing.T) {
-		db.On("PlayerByID", 1).Return(&player.Player{
-			ID:      1,
-			Balance: 1.5,
-		}, nil)
-		e.Request(http.MethodGet, "/balance/1").
-			Expect().Status(http.StatusOK).JSON().Number().Equal(1.5)
-	})
-
-	t.Run("DBError", func(t *testing.T) {
-		db.On("PlayerByID", 2).Return(nil, errors.New("some error"))
-		e.Request(http.MethodGet, "/balance/2").
-			Expect().Status(http.StatusBadRequest)
-	})
-
-	t.Run("PlayerParseIDError", func(t *testing.T) {
-		e.Request(http.MethodGet, "/balance/98765432109876543210").
-			Expect().Status(http.StatusBadRequest)
-	})
-	//TODO: do we need to check such cases?
-	t.Run("PlayerWrongIDError", func(t *testing.T) {
-		e.Request(http.MethodGet, "/balance/wrongid").
-			Expect().Status(http.StatusNotFound)
-	})
-
+	type dbArguments struct {
+		playerID     int
+		returnPlayer *player.Player
+		returnError  error
+	}
+	tt := []struct {
+		name            string
+		path            string
+		dbArgs          *dbArguments
+		expectedStatus  int
+		expectedBalance float32
+	}{
+		{
+			name: "Success",
+			path: "1",
+			dbArgs: &dbArguments{
+				playerID:     1,
+				returnPlayer: &player.Player{ID: 1, Balance: 1.5},
+				returnError:  nil},
+			expectedStatus:  http.StatusOK,
+			expectedBalance: 1.5,
+		},
+		{
+			name:           "DBError",
+			path:           "2",
+			dbArgs:         &dbArguments{playerID: 2, returnPlayer: nil, returnError: errors.New("some error")},
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "PlayerParseIDError",
+			path:           "98765432109876543210",
+			dbArgs:         nil,
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "WrongID",
+			path:           "wrongid",
+			dbArgs:         nil,
+			expectedStatus: http.StatusNotFound,
+		},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.dbArgs != nil {
+				db.On("PlayerByID", tc.dbArgs.playerID).Return(tc.dbArgs.returnPlayer, tc.dbArgs.returnError)
+			}
+			expect := e.Request(http.MethodGet, "/balance/"+tc.path).Expect()
+			expect.Status(tc.expectedStatus)
+			if tc.expectedBalance > 0 {
+				expect.JSON().Number().Equal(tc.expectedBalance)
+			}
+		})
+	}
+	db.AssertExpectations(t)
 }
 
 func TestManagerRouter_fundPointsHandler(t *testing.T) {
@@ -92,16 +147,10 @@ func TestManagerRouter_fundPointsHandler(t *testing.T) {
 		e.Request(http.MethodPut, "/fund/1").WithQuery("points", 2.5).
 			Expect().Status(http.StatusOK).JSON().Number().Equal(4.0)
 	})
-
-	t.Run("PlayerParseIDError", func(t *testing.T) {
+	t.Run("PlayerParseIDOrPointsError", func(t *testing.T) {
 		e.Request(http.MethodPut, "/fund/98765432109876543210").WithQuery("points", 2.5).
 			Expect().Status(http.StatusBadRequest)
 	})
-	t.Run("PlayerParseFloatError", func(t *testing.T) {
-		e.Request(http.MethodPut, "/fund/2").WithQuery("points", "9876543210987654321098765432109876543210.91").
-			Expect().Status(http.StatusBadRequest)
-	})
-
 	t.Run("DBError", func(t *testing.T) {
 		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
 		e.Request(http.MethodPut, "/fund/3").WithQuery("points", 2.5).
@@ -128,20 +177,46 @@ func TestManagerRouter_takePointsHandler(t *testing.T) {
 		e.Request(http.MethodPut, "/take/1").WithQuery("points", 2.5).
 			Expect().Status(http.StatusOK).JSON().Number().Equal(1.5)
 	})
-
-	t.Run("PlayerParseIDError", func(t *testing.T) {
+	t.Run("PlayerParseIDOrFloatError", func(t *testing.T) {
 		e.Request(http.MethodPut, "/take/98765432109876543210").WithQuery("points", 2.5).
 			Expect().Status(http.StatusBadRequest)
 	})
-	//TODO: do we need this test???
-	t.Run("PlayerParseFloatError", func(t *testing.T) {
-		e.Request(http.MethodPut, "/take/2").WithQuery("points", "9876543210987654321098765432109876543210.91").
-			Expect().Status(http.StatusBadRequest)
-	})
-	// TODO: is it enough to check only one possible error from DBManager?
 	t.Run("DBManagerError", func(t *testing.T) {
 		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
 		e.Request(http.MethodPut, "/take/3").WithQuery("points", 2.5).
 			Expect().Status(http.StatusBadRequest)
 	})
+}
+
+func TestGetPlayerIDAndPoints(t *testing.T) {
+	tt := []struct {
+		name             string
+		playerID         string
+		points           string
+		expectError      bool
+		expectedPlayerID int
+		expectedPoints   float32
+	}{
+		{name: "Success", playerID: "1", points: "1.5", expectError: false, expectedPlayerID: 1, expectedPoints: 1.5},
+		{name: "WrongID", playerID: "98765432109876543210", points: "1.5", expectError: true},
+		{name: "WrongPoints", playerID: "2", points: "9876543210987654321098765432109876543210.91", expectError: true},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			req, _ := http.NewRequest("", "", nil)
+			req = mux.SetURLVars(req, map[string]string{
+				"playerId": tc.playerID,
+				"points":   tc.points,
+			})
+			playerID, points, err := getPlayerIDAndPoints(req)
+			if !tc.expectError {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedPlayerID, playerID)
+				assert.Equal(t, tc.expectedPoints, points)
+			} else {
+				assert.Error(t, err)
+			}
+		})
+	}
 }
