@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/manager"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 	"github.com/gavv/httpexpect"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"

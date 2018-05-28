@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 )
 
 //go:generate mockery -name=DB -inpkg

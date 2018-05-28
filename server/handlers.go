@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/manager"
 	"github.com/gorilla/mux"
 )
 

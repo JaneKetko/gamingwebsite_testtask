@@ -4,9 +4,9 @@ package main
 import (
 	"log"
 
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/manager"
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/mongo"
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/server"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/manager"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/mongo"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/server"
 )
 
 func main() {

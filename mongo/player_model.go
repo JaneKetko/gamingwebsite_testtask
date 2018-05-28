@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"github.com/Ragnar-BY/gamingwebsite_testtask/pkg/player"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 	"github.com/globalsign/mgo/bson"
 )
 
