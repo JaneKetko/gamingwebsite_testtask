@@ -1,6 +1,5 @@
 package main
 
-// TODO why do you use this path pkg?
 import (
 	"log"
 
