@@ -43,7 +43,7 @@ func (s *Session) Players(dbname string, players string) (*PlayerService, error)
 		return nil, fmt.Errorf("cannot check if counter exists: %v", err)
 	}
 	if count == 0 {
-		err = CounterCollection.Insert(counter{ID: "playerIdCounter", PlayerID: 0})
+		err = CounterCollection.Insert(counter{ID: "playerIdCounter", PlayerID: 1})
 
 		if err != nil {
 			return nil, fmt.Errorf("cannot create counter: %v", err)
