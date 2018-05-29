@@ -77,3 +77,11 @@ func (ps *PlayerService) getAndIncreasePlayerID() (int, error) {
 	}
 	return result["playerId"].(int), nil
 }
+
+func (ps *PlayerService) deleteAllPlayers() error {
+	_, err := ps.players.RemoveAll(nil)
+	if err != nil {
+		return fmt.Errorf("cannot remove all players")
+	}
+	return nil
+}
