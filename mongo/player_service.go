@@ -50,20 +50,6 @@ func (ps *PlayerService) UpdatePlayer(id int, player player.Player) error {
 	return ps.players.Update(bson.M{"playerId": id}, bson.M{"$set": bson.M{"balance": player.Balance, "name": player.Name}})
 }
 
-// GetLastPlayerID return last player ID from collection
-func (ps *PlayerService) GetLastPlayerID() (int, error) {
-	type counter struct {
-		ID       bson.ObjectId `bson:"_id,omitempty"`
-		PlayerID int           `bson:"playerId"`
-	}
-	c := counter{}
-	err := ps.counter.Find(bson.M{"_id": "playerIdCounter"}).One(&c)
-	if err != nil {
-		return 0, err
-	}
-	return c.PlayerID, nil
-}
-
 // getAndIncreasePlayerID return last player ID and increase it in collection
 func (ps *PlayerService) getAndIncreasePlayerID() (int, error) {
 	change := mgo.Change{
