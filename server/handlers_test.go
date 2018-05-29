@@ -140,7 +140,7 @@ func TestManagerRouter_fundPointsHandler(t *testing.T) {
 			ID:      1,
 			Balance: 1.5,
 		}, nil)
-		db.On("UpdatePlayer", 1, player.Player{
+		db.On("UpdatePlayerBalance", 1, player.Player{
 			ID:      1,
 			Balance: 4.0,
 		}).Return(nil)
@@ -170,7 +170,7 @@ func TestManagerRouter_takePointsHandler(t *testing.T) {
 			ID:      1,
 			Balance: 4.0,
 		}, nil)
-		db.On("UpdatePlayer", 1, player.Player{
+		db.On("UpdatePlayerBalance", 1, player.Player{
 			ID:      1,
 			Balance: 1.5,
 		}).Return(nil)

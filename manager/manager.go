@@ -18,7 +18,7 @@ type DB interface {
 	PlayerByID(id int) (*player.Player, error)
 	AddPlayer(name string) (int, error)
 	DeletePlayer(id int) error
-	UpdatePlayer(id int, player player.Player) error
+	UpdatePlayerBalance(id int, player player.Player) error
 }
 
 // Manager manages players.
@@ -50,7 +50,7 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, e
 		return 0, ErrNotEnoughBalance
 	}
 	pl.Balance -= points
-	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
+	return pl.Balance, m.DB.UpdatePlayerBalance(playerID, *pl)
 }
 
 // FundPointsToPlayer funds points to player.
@@ -60,5 +60,5 @@ func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, err
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
 	pl.Balance += points
-	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
+	return pl.Balance, m.DB.UpdatePlayerBalance(playerID, *pl)
 }

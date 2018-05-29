@@ -45,8 +45,8 @@ func (ps *PlayerService) DeletePlayer(id int) error {
 	return ps.players.Remove(bson.M{"playerId": id})
 }
 
-// UpdatePlayer updates player with id from collection with player.Player, if possible.
-func (ps *PlayerService) UpdatePlayer(id int, player player.Player) error {
+// UpdatePlayerBalance updates player`s balance with player id from collection with player.Player, if possible.
+func (ps *PlayerService) UpdatePlayerBalance(id int, player player.Player) error {
 	return ps.players.Update(bson.M{"playerId": id}, bson.M{"$set": bson.M{"balance": player.Balance}})
 }
 

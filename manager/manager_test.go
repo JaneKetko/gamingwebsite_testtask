@@ -2,8 +2,8 @@ package manager
 
 import (
 	"errors"
-	"testing"
 	"fmt"
+	"testing"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 	"github.com/stretchr/testify/assert"
@@ -159,7 +159,7 @@ func TestManager_TakePointsFromPlayer(t *testing.T) {
 	for _, tt := range tests {
 		db.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
 		if tt.updatePlayer != nil {
-			db.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
+			db.On("UpdatePlayerBalance", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
 		}
 	}
 	for _, tt := range tests {
@@ -232,7 +232,7 @@ func TestManager_FundPointsToPlayer(t *testing.T) {
 	for _, tt := range tests {
 		db.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
 		if tt.updatePlayer != nil {
-			db.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
+			db.On("UpdatePlayerBalance", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
 		}
 	}
 	for _, tt := range tests {
