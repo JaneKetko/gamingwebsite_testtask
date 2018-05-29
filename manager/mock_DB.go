@@ -67,8 +67,8 @@ func (_m *MockDB) PlayerByID(id int) (*player.Player, error) {
 	return r0, r1
 }
 
-// UpdatePlayerBalance provides a mock function with given fields: id, _a1
-func (_m *MockDB) UpdatePlayerBalance(id int, _a1 player.Player) error {
+// UpdatePlayer provides a mock function with given fields: id, _a1
+func (_m *MockDB) UpdatePlayer(id int, _a1 player.Player) error {
 	ret := _m.Called(id, _a1)
 
 	var r0 error
