@@ -1,3 +1,5 @@
+// +build !notmongo
+
 package mongo
 
 import (
