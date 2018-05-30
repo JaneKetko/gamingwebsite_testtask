@@ -7,6 +7,7 @@ import (
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestManager_CreateNewPlayer(t *testing.T) {
@@ -168,7 +169,7 @@ func TestManager_TakePointsFromPlayer(t *testing.T) {
 			if tt.expectedError != "" {
 				assert.Error(t, err, tt.expectedError)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tt.expectedPlayerByID.Balance, balance)
 			}
 		})
@@ -241,7 +242,7 @@ func TestManager_FundPointsToPlayer(t *testing.T) {
 			if tt.expectedError != "" {
 				assert.Error(t, err, tt.expectedError)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tt.expectedPlayerByID.Balance, balance)
 			}
 		})

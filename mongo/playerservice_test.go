@@ -103,13 +103,13 @@ func TestPlayerService_UpdatePlayer(t *testing.T) {
 func TestPlayerService_GetAndIncreasePlayerID(t *testing.T) {
 	defer cleanCollection(t)
 	id, err := players.getAndIncreasePlayerID()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Condition(t, func() (success bool) {
 		success = id > 0
 		return
 	})
 	id2, err := players.getAndIncreasePlayerID()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, id+1, id2)
 }
 
