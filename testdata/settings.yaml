@@ -1,0 +1,5 @@
+dbname: database
+players: players
+dbaddress: 127.0.0.1:27017
+server: :8080
+some: value
