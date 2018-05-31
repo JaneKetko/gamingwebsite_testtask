@@ -129,4 +129,23 @@ func TestPlayerService_ListAllPlayers(t *testing.T) {
 	})
 }
 
-//TODO how to create test for deleteAllPlayers?
+func TestPlayerService_DeleteAllPlayers(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		names := []string{"p1", "p2", "p3"}
+		for _, n := range names {
+			_, err := players.AddPlayer(n)
+			require.NoError(t, err)
+		}
+		pls, err := players.listAllPlayers()
+		require.NoError(t, err)
+		l := len(pls)
+		assert.Equal(t, len(names), l)
+		err = players.deleteAllPlayers()
+		require.NoError(t, err)
+
+		pls, err = players.listAllPlayers()
+		require.NoError(t, err)
+		l = len(pls)
+		assert.Equal(t, 0, l)
+	})
+}
