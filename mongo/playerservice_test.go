@@ -115,11 +115,11 @@ func TestPlayerService_ListAllPlayers(t *testing.T) {
 			_, err := players.AddPlayer(n)
 			require.NoError(t, err)
 		}
-		players, err := players.listAllPlayers()
+		pls, err := players.listAllPlayers()
 		require.NoError(t, err)
-		require.Equal(t, len(names), len(players))
+		require.Equal(t, len(names), len(pls))
 		for i, name := range names {
-			assert.Equal(t, name, players[i].Name)
+			assert.Equal(t, name, pls[i].Name)
 		}
 	})
 }
