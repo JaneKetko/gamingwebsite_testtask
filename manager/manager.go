@@ -3,6 +3,7 @@ package manager
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 )
@@ -23,16 +24,27 @@ type DB interface {
 
 // Manager manages players.
 type Manager struct {
+	m  *sync.Mutex
 	DB DB
+}
+
+// NewManager is new manager
+func NewManager(db DB) Manager {
+	mutex := &sync.Mutex{}
+	return Manager{m: mutex, DB: db}
 }
 
 // CreateNewPlayer creates new player in DB.
 func (m *Manager) CreateNewPlayer(name string) (int, error) {
+	m.m.Lock()
+	defer m.m.Unlock()
 	return m.DB.AddPlayer(name)
 }
 
 // GetPlayerPoints gets player points.
 func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
+	m.m.Lock()
+	defer m.m.Unlock()
 	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
@@ -42,6 +54,8 @@ func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
 
 // TakePointsFromPlayer takes points from player.
 func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, error) {
+	m.m.Lock()
+	defer m.m.Unlock()
 	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
@@ -55,6 +69,8 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, e
 
 // FundPointsToPlayer funds points to player.
 func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, error) {
+	m.m.Lock()
+	defer m.m.Unlock()
 	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)

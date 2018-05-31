@@ -15,7 +15,7 @@ import (
 
 func TestManagerRouter_AddPlayerHandler(t *testing.T) {
 	db := &manager.MockDB{}
-	m := newManagerRouter(manager.Manager{DB: db}, mux.NewRouter())
+	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 
 	server := httptest.NewServer(m)
 	defer server.Close()
@@ -67,7 +67,7 @@ func TestManagerRouter_AddPlayerHandler(t *testing.T) {
 
 func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 	db := &manager.MockDB{}
-	m := newManagerRouter(manager.Manager{DB: db}, mux.NewRouter())
+	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 	server := httptest.NewServer(m)
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
@@ -130,7 +130,7 @@ func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 
 func TestManagerRouter_fundPointsHandler(t *testing.T) {
 	db := &manager.MockDB{}
-	m := newManagerRouter(manager.Manager{DB: db}, mux.NewRouter())
+	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 	server := httptest.NewServer(m)
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
@@ -160,7 +160,7 @@ func TestManagerRouter_fundPointsHandler(t *testing.T) {
 
 func TestManagerRouter_takePointsHandler(t *testing.T) {
 	db := &manager.MockDB{}
-	m := newManagerRouter(manager.Manager{DB: db}, mux.NewRouter())
+	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 	server := httptest.NewServer(m)
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)

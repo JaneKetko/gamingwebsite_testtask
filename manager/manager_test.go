@@ -12,7 +12,7 @@ import (
 
 func TestManager_CreateNewPlayer(t *testing.T) {
 	db := &MockDB{}
-	m := Manager{db}
+	m := NewManager(db)
 
 	tests := []struct {
 		name          string
@@ -53,7 +53,7 @@ func TestManager_CreateNewPlayer(t *testing.T) {
 
 func TestManager_GetPlayerPoints(t *testing.T) {
 	db := &MockDB{}
-	m := Manager{db}
+	m := NewManager(db)
 
 	tests := []struct {
 		name            string
@@ -96,7 +96,7 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 
 func TestManager_TakePointsFromPlayer(t *testing.T) {
 	db := &MockDB{}
-	m := Manager{db}
+	m := NewManager(db)
 
 	tests := []struct {
 		testName                  string
@@ -179,7 +179,7 @@ func TestManager_TakePointsFromPlayer(t *testing.T) {
 
 func TestManager_FundPointsToPlayer(t *testing.T) {
 	db := &MockDB{}
-	m := Manager{db}
+	m := NewManager(db)
 
 	tests := []struct {
 		testName                  string
