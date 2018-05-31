@@ -35,6 +35,11 @@ func TestPlayerService_AddPlayer(t *testing.T) {
 	id, err := players.AddPlayer("player1")
 	require.NoError(t, err)
 	assert.NotZero(t, id)
+
+	id2, err := players.AddPlayer("player2")
+	require.NoError(t, err)
+	assert.NotZero(t, id)
+	assert.Equal(t, id+1, id2)
 }
 
 //TODO do we need to make test table?
