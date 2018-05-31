@@ -107,4 +107,21 @@ func TestPlayerService_GetAndIncreasePlayerID(t *testing.T) {
 	assert.Equal(t, id+1, id2)
 }
 
+func TestPlayerService_ListAllPlayers(t *testing.T) {
+	defer cleanCollection(t)
+	t.Run("Success", func(t *testing.T) {
+		names := []string{"p1", "p2", "p3"}
+		for _, n := range names {
+			_, err := players.AddPlayer(n)
+			require.NoError(t, err)
+		}
+		players, err := players.listAllPlayers()
+		require.NoError(t, err)
+		require.Equal(t, len(names), len(players))
+		for i, name := range names {
+			assert.Equal(t, name, players[i].Name)
+		}
+	})
+}
+
 //TODO how to create test for deleteAllPlayers?

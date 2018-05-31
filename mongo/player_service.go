@@ -71,3 +71,16 @@ func (ps *PlayerService) deleteAllPlayers() error {
 	}
 	return nil
 }
+
+func (ps *PlayerService) listAllPlayers() ([]*player.Player, error) {
+	var playerModels []PlayerModel
+	err := ps.players.Find(nil).All(&playerModels)
+	if err != nil {
+		return nil, fmt.Errorf("cannot list all players: %v", err)
+	}
+	players := make([]*player.Player, len(playerModels))
+	for i, pm := range playerModels {
+		players[i] = pm.ToPlayer()
+	}
+	return players, nil
+}
