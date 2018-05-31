@@ -34,10 +34,7 @@ func TestPlayerService_AddPlayer(t *testing.T) {
 	defer cleanCollection(t)
 	id, err := players.AddPlayer("player1")
 	require.NoError(t, err)
-	assert.Condition(t, func() (success bool) {
-		success = id > 0
-		return
-	})
+	assert.NotZero(t, id)
 }
 
 //TODO do we need to make test table?
@@ -104,10 +101,7 @@ func TestPlayerService_GetAndIncreasePlayerID(t *testing.T) {
 	defer cleanCollection(t)
 	id, err := players.getAndIncreasePlayerID()
 	require.NoError(t, err)
-	assert.Condition(t, func() (success bool) {
-		success = id > 0
-		return
-	})
+	assert.NotZero(t, id)
 	id2, err := players.getAndIncreasePlayerID()
 	require.NoError(t, err)
 	assert.Equal(t, id+1, id2)
