@@ -1,0 +1,5 @@
+dbname: testDB
+players: players
+dbaddress: 10.10.10.10:27017
+server: :1234
+some: value
