@@ -25,11 +25,12 @@ func init() {
 	}
 }
 
+// TODO: may be better don`t use this function.
+
 func cleanCollection(t *testing.T) {
 	err := players.deleteAllPlayers()
 	assert.NoError(t, err)
 }
-
 func TestPlayerService_AddPlayer(t *testing.T) {
 	defer cleanCollection(t)
 	id, err := players.AddPlayer("player1")
@@ -41,8 +42,6 @@ func TestPlayerService_AddPlayer(t *testing.T) {
 	assert.NotZero(t, id)
 	assert.Equal(t, id+1, id2)
 }
-
-//TODO do we need to make test table?
 
 func TestPlayerService_PlayerByID(t *testing.T) {
 	defer cleanCollection(t)
