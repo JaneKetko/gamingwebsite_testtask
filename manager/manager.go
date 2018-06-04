@@ -24,27 +24,30 @@ type DB interface {
 
 // Manager manages players.
 type Manager struct {
-	m  *sync.Mutex
-	DB DB
+	mute map[int]*sync.Mutex
+	DB   DB
 }
 
 // NewManager is new manager
 func NewManager(db DB) Manager {
-	mutex := &sync.Mutex{}
-	return Manager{m: mutex, DB: db}
+	return Manager{mute: make(map[int]*sync.Mutex), DB: db}
 }
 
 // CreateNewPlayer creates new player in DB.
 func (m *Manager) CreateNewPlayer(name string) (int, error) {
-	m.m.Lock()
-	defer m.m.Unlock()
-	return m.DB.AddPlayer(name)
+	id, err := m.DB.AddPlayer(name)
+	if err != nil {
+		return 0, err
+	}
+	m.createMutexIfNotExist(id)
+	return id, nil
 }
 
 // GetPlayerPoints gets player points.
 func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
-	m.m.Lock()
-	defer m.m.Unlock()
+	m.createMutexIfNotExist(playerID)
+	m.mute[playerID].Lock()
+	defer m.mute[playerID].Unlock()
 	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
@@ -54,8 +57,9 @@ func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
 
 // TakePointsFromPlayer takes points from player.
 func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, error) {
-	m.m.Lock()
-	defer m.m.Unlock()
+	m.createMutexIfNotExist(playerID)
+	m.mute[playerID].Lock()
+	defer m.mute[playerID].Unlock()
 	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
@@ -69,12 +73,19 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, e
 
 // FundPointsToPlayer funds points to player.
 func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, error) {
-	m.m.Lock()
-	defer m.m.Unlock()
+	m.createMutexIfNotExist(playerID)
+	m.mute[playerID].Lock()
+	defer m.mute[playerID].Unlock()
 	pl, err := m.DB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
 	pl.Balance += points
 	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
+}
+
+func (m *Manager) createMutexIfNotExist(playerID int) {
+	if _, ok := m.mute[playerID]; !ok {
+		m.mute[playerID] = &sync.Mutex{}
+	}
 }
