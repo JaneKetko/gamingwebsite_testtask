@@ -2,7 +2,7 @@ version: '3'
 services:
   goapp:
     build: .
-    entrypoint: gamingwebsite_testtask -a db:27017
+    entrypoint: ./gamingwebsite_testtask -a db:27017
     ports:
       - "8080:8080"
     depends_on:
