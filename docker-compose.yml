@@ -1,0 +1,16 @@
+version: '3'
+services:
+  goapp:
+    build: .
+    entrypoint: gamingwebsite_testtask -a db:27017
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+  db:
+    command: mongod
+    image: mongo
+    ports:
+      - "27017:27017"
