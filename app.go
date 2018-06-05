@@ -17,7 +17,7 @@ func main() {
 	var session mongo.Session
 	err = session.Open(opts.Address)
 	if err != nil {
-		log.Fatalf("Cannot start MongoDB: %v", err)
+		log.Fatalf("Cannot start MongoDB on the %s: %v", opts.Address, err)
 	}
 	players, err := session.Players(opts.DBName, opts.PlayerCollection)
 	if err != nil {
