@@ -8,3 +8,9 @@ To build with docker use:
 ```
 docker-compose up --build
 ```
+
+
+Binary built with 
+```
+CGO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w' .
+```
