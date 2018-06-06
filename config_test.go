@@ -52,49 +52,49 @@ func TestSettings_Parse(t *testing.T) {
 	defer func() { os.Args = oldArgs }()
 
 	tt := []struct {
-		name             string
-		args             []string
-		expDBName        string
-		expAddress       string
-		expPlayers       string
-		expServerAddress string
-		expConfig        string
+		name                  string
+		args                  []string
+		expectedDBName        string
+		expectedAddress       string
+		expectedPlayers       string
+		expectedServerAddress string
+		expectedConfig        string
 	}{
 		{
-			name:             "success",
-			args:             []string{"cmd", "--dbname=db", "-a=127.0.0.1", "--players=coll", "--server=:1234"},
-			expDBName:        "db",
-			expAddress:       "127.0.0.1",
-			expPlayers:       "coll",
-			expServerAddress: ":1234",
-			expConfig:        "",
+			name:                  "success",
+			args:                  []string{"cmd", "--dbname=db", "-a=127.0.0.1", "--players=coll", "--server=:1234"},
+			expectedDBName:        "db",
+			expectedAddress:       "127.0.0.1",
+			expectedPlayers:       "coll",
+			expectedServerAddress: ":1234",
+			expectedConfig:        "",
 		},
 		{
-			name:             "SuccessPartialSettings",
-			args:             []string{"cmd", "--dbname=db", "-a=127.0.0.1"},
-			expDBName:        "db",
-			expAddress:       "127.0.0.1",
-			expPlayers:       "players",
-			expServerAddress: ":8080",
-			expConfig:        "",
+			name:                  "SuccessPartialSettings",
+			args:                  []string{"cmd", "--dbname=db", "-a=127.0.0.1"},
+			expectedDBName:        "db",
+			expectedAddress:       "127.0.0.1",
+			expectedPlayers:       "players",
+			expectedServerAddress: ":8080",
+			expectedConfig:        "",
 		},
 		{
-			name:             "SuccessLostConfigFile",
-			args:             []string{"cmd", "--dbname=db", "-a=127.0.0.1", "--players=coll", "--server=:1234", "--configfile=testdata/filenotexist"},
-			expDBName:        "db",
-			expAddress:       "127.0.0.1",
-			expPlayers:       "coll",
-			expServerAddress: ":1234",
-			expConfig:        "testdata/filenotexist",
+			name:                  "SuccessLostConfigFile",
+			args:                  []string{"cmd", "--dbname=db", "-a=127.0.0.1", "--players=coll", "--server=:1234", "--configfile=testdata/filenotexist"},
+			expectedDBName:        "db",
+			expectedAddress:       "127.0.0.1",
+			expectedPlayers:       "coll",
+			expectedServerAddress: ":1234",
+			expectedConfig:        "testdata/filenotexist",
 		},
 		{
-			name:             "SuccessConfigFile",
-			args:             []string{"cmd", "--dbname=testDB", "-a=127.0.0.1", "--players=coll", "--server=:1234", "--configfile=testdata/config.yaml"},
-			expDBName:        "testDB",
-			expAddress:       "10.10.10.10:27017",
-			expPlayers:       "players",
-			expServerAddress: ":1234",
-			expConfig:        "testdata/config.yaml",
+			name:                  "SuccessConfigFile",
+			args:                  []string{"cmd", "--dbname=testDB", "-a=127.0.0.1", "--players=coll", "--server=:1234", "--configfile=testdata/config.yaml"},
+			expectedDBName:        "testDB",
+			expectedAddress:       "10.10.10.10:27017",
+			expectedPlayers:       "players",
+			expectedServerAddress: ":1234",
+			expectedConfig:        "testdata/config.yaml",
 		},
 	}
 	for _, tc := range tt {
@@ -103,11 +103,11 @@ func TestSettings_Parse(t *testing.T) {
 			os.Args = tc.args
 			err := s.Parse()
 			require.NoError(t, err)
-			assert.Equal(t, tc.expDBName, s.DBName)
-			assert.Equal(t, tc.expAddress, s.Address)
-			assert.Equal(t, tc.expPlayers, s.PlayerCollection)
-			assert.Equal(t, tc.expServerAddress, s.ServerAddress)
-			assert.Equal(t, tc.expConfig, s.ConfigFile)
+			assert.Equal(t, tc.expectedDBName, s.DBName)
+			assert.Equal(t, tc.expectedAddress, s.Address)
+			assert.Equal(t, tc.expectedPlayers, s.PlayerCollection)
+			assert.Equal(t, tc.expectedServerAddress, s.ServerAddress)
+			assert.Equal(t, tc.expectedConfig, s.ConfigFile)
 		})
 	}
 }
