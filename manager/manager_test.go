@@ -249,3 +249,39 @@ func TestManager_FundPointsToPlayer(t *testing.T) {
 	}
 	db.AssertExpectations(t)
 }
+
+func TestManager_RemovePlayer(t *testing.T) {
+	db := &MockDB{}
+	m := NewManager(db)
+
+	tests := []struct {
+		testName      string
+		playerID      int
+		expectedError error
+	}{
+		{
+			testName:      "Success",
+			playerID:      1,
+			expectedError: nil,
+		},
+		{
+			testName:      "Error",
+			playerID:      -1,
+			expectedError: errors.New("wrong id"),
+		},
+	}
+	for _, tt := range tests {
+		db.On("DeletePlayer", tt.playerID).Return(tt.expectedError)
+	}
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			err := m.RemovePlayer(tt.playerID)
+			if tt.expectedError != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+	db.AssertExpectations(t)
+}

@@ -27,6 +27,8 @@ func newManagerRouter(manager manager.Manager, router *mux.Router) *mux.Router {
 	router.HandleFunc("/take/{playerId:[0-9]+}", mngrRouter.takePointsHandler).
 		Methods(http.MethodPut).
 		Queries("points", "{points:[0-9]+\\.?[0-9]{0,2}}")
+	router.HandleFunc("/remove/{playerId:[0-9]+}", mngrRouter.removePlayerHandler).
+		Methods(http.MethodDelete)
 	return router
 }
 
@@ -90,6 +92,19 @@ func (m *managerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request
 	JSON(w, http.StatusOK, balance)
 }
 
+func (m *managerRouter) removePlayerHandler(w http.ResponseWriter, r *http.Request) {
+	playerID, err := getIntValue(r, "playerId")
+	if err != nil {
+		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get playerId: %v", err))
+		return
+	}
+	err = m.manager.RemovePlayer(playerID)
+	if err != nil {
+		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot remove player: %v", err))
+		return
+	}
+	JSON(w, http.StatusOK, playerID)
+}
 func getPlayerIDAndPoints(r *http.Request) (int, float32, error) {
 	playerID, err := getIntValue(r, "playerId")
 	if err != nil {

@@ -84,6 +84,19 @@ func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, err
 	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
 }
 
+// RemovePlayer removes player.
+func (m *Manager) RemovePlayer(playerID int) error {
+	//TODO: if we remove player, should we remove mutex from map, and how if should
+	m.createMutexIfNotExist(playerID)
+	m.mute[playerID].Lock()
+	defer m.mute[playerID].Unlock()
+	err := m.DB.DeletePlayer(playerID)
+	if err != nil {
+		return fmt.Errorf("cannot delete player with ID %v: %v", playerID, err)
+	}
+	return nil
+}
+
 func (m *Manager) createMutexIfNotExist(playerID int) {
 	if _, ok := m.mute[playerID]; !ok {
 		m.mute[playerID] = &sync.Mutex{}

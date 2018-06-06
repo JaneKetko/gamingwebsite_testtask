@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/manager"
@@ -11,6 +12,10 @@ import (
 	"github.com/gavv/httpexpect"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+)
+
+const (
+	badPlayerID = "98765432109876543210" // too long for int.
 )
 
 func TestManagerRouter_AddPlayerHandler(t *testing.T) {
@@ -102,7 +107,7 @@ func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 		},
 		{
 			name:           "PlayerParseIDError",
-			path:           "98765432109876543210",
+			path:           badPlayerID,
 			dbArgs:         nil,
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -148,7 +153,7 @@ func TestManagerRouter_fundPointsHandler(t *testing.T) {
 			Expect().Status(http.StatusOK).JSON().Number().Equal(4.0)
 	})
 	t.Run("PlayerParseIDOrPointsError", func(t *testing.T) {
-		e.Request(http.MethodPut, "/fund/98765432109876543210").WithQuery("points", 2.5).
+		e.Request(http.MethodPut, "/fund/"+badPlayerID).WithQuery("points", 2.5).
 			Expect().Status(http.StatusBadRequest)
 	})
 	t.Run("DBError", func(t *testing.T) {
@@ -178,12 +183,51 @@ func TestManagerRouter_takePointsHandler(t *testing.T) {
 			Expect().Status(http.StatusOK).JSON().Number().Equal(1.5)
 	})
 	t.Run("PlayerParseIDOrFloatError", func(t *testing.T) {
-		e.Request(http.MethodPut, "/take/98765432109876543210").WithQuery("points", 2.5).
+		e.Request(http.MethodPut, "/take/"+badPlayerID).WithQuery("points", 2.5).
 			Expect().Status(http.StatusBadRequest)
 	})
 	t.Run("DBManagerError", func(t *testing.T) {
 		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
 		e.Request(http.MethodPut, "/take/3").WithQuery("points", 2.5).
+			Expect().Status(http.StatusBadRequest)
+	})
+}
+
+func TestManagerRouter_RemovePlayer(t *testing.T) {
+	db := &manager.MockDB{}
+	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
+	server := httptest.NewServer(m)
+	defer server.Close()
+	e := httpexpect.New(t, server.URL)
+
+	tt := []struct {
+		name           string
+		playerID       int
+		returnError    error
+		expectedStatus int
+	}{
+		{
+			name:           "Success",
+			playerID:       1,
+			returnError:    nil,
+			expectedStatus: http.StatusOK,
+		},
+		{
+			name:           "DBError",
+			playerID:       2,
+			returnError:    errors.New("wrong id"),
+			expectedStatus: http.StatusBadRequest,
+		},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			db.On("DeletePlayer", tc.playerID).Return(tc.returnError)
+			e.Request(http.MethodDelete, "/remove/"+strconv.Itoa(tc.playerID)).
+				Expect().Status(tc.expectedStatus)
+		})
+	}
+	t.Run("ParseIDError", func(t *testing.T) {
+		e.Request(http.MethodDelete, "/remove/"+badPlayerID).
 			Expect().Status(http.StatusBadRequest)
 	})
 }
@@ -198,7 +242,7 @@ func TestGetPlayerIDAndPoints(t *testing.T) {
 		expectedPoints   float32
 	}{
 		{name: "Success", playerID: "1", points: "1.5", expectError: false, expectedPlayerID: 1, expectedPoints: 1.5},
-		{name: "WrongID", playerID: "98765432109876543210", points: "1.5", expectError: true},
+		{name: "BadPlayerID", playerID: badPlayerID, points: "1.5", expectError: true},
 		{name: "WrongPoints", playerID: "2", points: "9876543210987654321098765432109876543210.91", expectError: true},
 	}
 
