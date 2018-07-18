@@ -5,17 +5,13 @@ import (
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/manager"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/mongo"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/mysql"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/server"
 )
 
-func main() {
-	opts := new(settings)
-	err := opts.Parse()
-	if err != nil {
-		log.Fatalf("Cannot parse settings: %v", err)
-	}
+func startWithMongo(opts settings) {
 	var session mongo.Session
-	err = session.Open(opts.Address)
+	err := session.Open(opts.Address)
 	if err != nil {
 		log.Fatalf("Cannot start MongoDB on the %s: %v", opts.Address, err)
 	}
@@ -26,4 +22,30 @@ func main() {
 	mngr := manager.NewManager(players)
 	s := server.NewServer(mngr)
 	s.Start(opts.ServerAddress)
+}
+
+func startWithMySql(opts settings) {
+	sql, err := mysql.Open(opts.User, opts.Password, opts.DBName)
+	if err != nil {
+		log.Fatal("Cannot start MySQL: ", err)
+	}
+	ps := mysql.PlayerService{DB: sql, Name: opts.PlayerCollection}
+
+	mngr := manager.NewManager(ps)
+	s := server.NewServer(mngr)
+	s.Start(opts.ServerAddress)
+
+}
+func main() {
+	opts := new(settings)
+	err := opts.Parse()
+	if err != nil {
+		log.Fatalf("Cannot parse settings: %v", err)
+	}
+	if opts.Type == "mysql" {
+		startWithMySql(*opts)
+	} else {
+		startWithMongo(*opts)
+	}
+
 }

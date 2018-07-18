@@ -22,6 +22,10 @@ type settings struct {
 	ServerAddress string `yaml:"server" short:"s" long:"server" description:"Server address" required:"true" default:":8080"`
 	// ConfigFile is file with configs.
 	ConfigFile string `short:"f" long:"configfile" description:"File with config"`
+	//
+	User     string `long:"user"`
+	Password string `long:"password"`
+	Type     string `long:"type"`
 }
 
 // Parse parses command line parameters. If there is ConfigFile, then override params by values from file.
