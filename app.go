@@ -24,7 +24,7 @@ func startWithMongo(opts settings) {
 	s.Start(opts.ServerAddress)
 }
 
-func startWithMySql(opts settings) {
+func startWithMySQL(opts settings) {
 	sql, err := mysql.Open(opts.User, opts.Password, opts.DBName)
 	if err != nil {
 		log.Fatal("Cannot start MySQL: ", err)
@@ -43,7 +43,7 @@ func main() {
 		log.Fatalf("Cannot parse settings: %v", err)
 	}
 	if opts.Type == "mysql" {
-		startWithMySql(*opts)
+		startWithMySQL(*opts)
 	} else {
 		startWithMongo(*opts)
 	}
