@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -16,10 +17,10 @@ var (
 
 // DB is interface for database.
 type DB interface {
-	PlayerByID(id int) (*player.Player, error)
-	AddPlayer(name string) (int, error)
-	DeletePlayer(id int) error
-	UpdatePlayer(id int, player player.Player) error
+	PlayerByID(ctx context.Context, id int) (*player.Player, error)
+	AddPlayer(ctx context.Context, name string) (int, error)
+	DeletePlayer(ctx context.Context, id int) error
+	UpdatePlayer(ctx context.Context, id int, player player.Player) error
 }
 
 // Manager manages players.
@@ -34,8 +35,8 @@ func NewManager(db DB) Manager {
 }
 
 // CreateNewPlayer creates new player in DB.
-func (m *Manager) CreateNewPlayer(name string) (int, error) {
-	id, err := m.DB.AddPlayer(name)
+func (m *Manager) CreateNewPlayer(ctx context.Context, name string) (int, error) {
+	id, err := m.DB.AddPlayer(ctx, name)
 	if err != nil {
 		return 0, err
 	}
@@ -44,11 +45,11 @@ func (m *Manager) CreateNewPlayer(name string) (int, error) {
 }
 
 // GetPlayerPoints gets player points.
-func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
+func (m *Manager) GetPlayerPoints(ctx context.Context, playerID int) (float32, error) {
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	pl, err := m.DB.PlayerByID(playerID)
+	pl, err := m.DB.PlayerByID(ctx, playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
@@ -56,11 +57,11 @@ func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
 }
 
 // TakePointsFromPlayer takes points from player.
-func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, error) {
+func (m *Manager) TakePointsFromPlayer(ctx context.Context, playerID int, points float32) (float32, error) {
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	pl, err := m.DB.PlayerByID(playerID)
+	pl, err := m.DB.PlayerByID(ctx, playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
@@ -68,29 +69,29 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, e
 		return 0, ErrNotEnoughBalance
 	}
 	pl.Balance -= points
-	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
+	return pl.Balance, m.DB.UpdatePlayer(ctx, playerID, *pl)
 }
 
 // FundPointsToPlayer funds points to player.
-func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, error) {
+func (m *Manager) FundPointsToPlayer(ctx context.Context, playerID int, points float32) (float32, error) {
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	pl, err := m.DB.PlayerByID(playerID)
+	pl, err := m.DB.PlayerByID(ctx, playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
 	pl.Balance += points
-	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
+	return pl.Balance, m.DB.UpdatePlayer(ctx, playerID, *pl)
 }
 
 // RemovePlayer removes player.
-func (m *Manager) RemovePlayer(playerID int) error {
+func (m *Manager) RemovePlayer(ctx context.Context, playerID int) error {
 	//TODO: if we remove player, should we remove mutex from map, and how if should
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	err := m.DB.DeletePlayer(playerID)
+	err := m.DB.DeletePlayer(ctx, playerID)
 	if err != nil {
 		return fmt.Errorf("cannot delete player with ID %v: %v", playerID, err)
 	}

@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
@@ -20,14 +21,14 @@ func NewPlayerService(players *mgo.Collection, counter *mgo.Collection) PlayerSe
 }
 
 // PlayerByID returns player by id, if exist.
-func (ps *PlayerService) PlayerByID(id int) (*player.Player, error) {
+func (ps *PlayerService) PlayerByID(_ context.Context, id int) (*player.Player, error) {
 	model := PlayerModel{}
 	err := ps.players.Find(bson.M{"playerId": id}).One(&model)
 	return model.ToPlayer(), err
 }
 
 // AddPlayer inserts new player in collection.
-func (ps *PlayerService) AddPlayer(name string) (int, error) {
+func (ps *PlayerService) AddPlayer(_ context.Context, name string) (int, error) {
 	playerID, err := ps.getAndIncreasePlayerID()
 	if err != nil {
 		return 0, fmt.Errorf("cannot get new id: %v", err)
@@ -41,12 +42,12 @@ func (ps *PlayerService) AddPlayer(name string) (int, error) {
 }
 
 // DeletePlayer deletes player by id from collection, if possible.
-func (ps *PlayerService) DeletePlayer(id int) error {
+func (ps *PlayerService) DeletePlayer(_ context.Context, id int) error {
 	return ps.players.Remove(bson.M{"playerId": id})
 }
 
 // UpdatePlayer updates player with player id from collection with player.Player, if possible.
-func (ps *PlayerService) UpdatePlayer(id int, player player.Player) error {
+func (ps *PlayerService) UpdatePlayer(_ context.Context, id int, player player.Player) error {
 	return ps.players.Update(bson.M{"playerId": id}, bson.M{"$set": bson.M{"balance": player.Balance, "name": player.Name}})
 }
 
@@ -64,7 +65,7 @@ func (ps *PlayerService) getAndIncreasePlayerID() (int, error) {
 	return result["playerId"].(int), nil
 }
 
-func (ps *PlayerService) deleteAllPlayers() error {
+func (ps *PlayerService) deleteAllPlayers(_ context.Context) error {
 	_, err := ps.players.RemoveAll(nil)
 	if err != nil {
 		return fmt.Errorf("cannot remove all players")
@@ -72,7 +73,7 @@ func (ps *PlayerService) deleteAllPlayers() error {
 	return nil
 }
 
-func (ps *PlayerService) listAllPlayers() ([]*player.Player, error) {
+func (ps *PlayerService) listAllPlayers(_ context.Context) ([]*player.Player, error) {
 	var playerModels []PlayerModel
 	err := ps.players.Find(nil).All(&playerModels)
 	if err != nil {
