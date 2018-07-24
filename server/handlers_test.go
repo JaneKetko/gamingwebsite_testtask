@@ -19,7 +19,7 @@ const (
 )
 
 func TestManagerRouter_AddPlayerHandler(t *testing.T) {
-	db := &manager.MockDB{}
+	db := &manager.MockPlayerDB{}
 	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 
 	server := httptest.NewServer(m)
@@ -71,7 +71,7 @@ func TestManagerRouter_AddPlayerHandler(t *testing.T) {
 }
 
 func TestManagerRouter_balancePlayerHandler(t *testing.T) {
-	db := &manager.MockDB{}
+	db := &manager.MockPlayerDB{}
 	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 	server := httptest.NewServer(m)
 	defer server.Close()
@@ -134,7 +134,7 @@ func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 }
 
 func TestManagerRouter_fundPointsHandler(t *testing.T) {
-	db := &manager.MockDB{}
+	db := &manager.MockPlayerDB{}
 	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 	server := httptest.NewServer(m)
 	defer server.Close()
@@ -164,7 +164,7 @@ func TestManagerRouter_fundPointsHandler(t *testing.T) {
 }
 
 func TestManagerRouter_takePointsHandler(t *testing.T) {
-	db := &manager.MockDB{}
+	db := &manager.MockPlayerDB{}
 	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 	server := httptest.NewServer(m)
 	defer server.Close()
@@ -194,7 +194,7 @@ func TestManagerRouter_takePointsHandler(t *testing.T) {
 }
 
 func TestManagerRouter_RemovePlayer(t *testing.T) {
-	db := &manager.MockDB{}
+	db := &manager.MockPlayerDB{}
 	m := newManagerRouter(manager.NewManager(db), mux.NewRouter())
 	server := httptest.NewServer(m)
 	defer server.Close()

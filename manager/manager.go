@@ -8,14 +8,14 @@ import (
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 )
 
-//go:generate mockery -name=DB -inpkg
+//go:generate mockery -name=PlayerDB -inpkg
 var (
 	// ErrNotEnoughBalance is error for not enough balance.
 	ErrNotEnoughBalance = errors.New("player has not enough balance")
 )
 
-// DB is interface for database.
-type DB interface {
+// PlayerDB is interface for database.
+type PlayerDB interface {
 	PlayerByID(id int) (*player.Player, error)
 	AddPlayer(name string) (int, error)
 	DeletePlayer(id int) error
@@ -25,15 +25,15 @@ type DB interface {
 // Manager manages players.
 type Manager struct {
 	mute map[int]*sync.Mutex
-	DB   DB
+	DB   PlayerDB
 }
 
 // NewManager is new manager
-func NewManager(db DB) Manager {
+func NewManager(db PlayerDB) Manager {
 	return Manager{mute: make(map[int]*sync.Mutex), DB: db}
 }
 
-// CreateNewPlayer creates new player in DB.
+// CreateNewPlayer creates new player in PlayerDB.
 func (m *Manager) CreateNewPlayer(name string) (int, error) {
 	id, err := m.DB.AddPlayer(name)
 	if err != nil {
