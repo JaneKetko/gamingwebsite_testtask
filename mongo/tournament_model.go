@@ -7,7 +7,7 @@ import (
 
 // TournamentModel represents Tournament model for MongoDB.
 type TournamentModel struct {
-	ID             bson.ObjectId `bson:"_id"`
+	ID             bson.ObjectId `bson:"_id,omitempty"`
 	TournamentID   int           `bson:"tournamentid"`
 	IsFinished     bool          `bson:"isfinished"`
 	Deposit        float32       `bson:"deposit"`
