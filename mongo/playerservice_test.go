@@ -27,12 +27,12 @@ func init() {
 
 // TODO: may be better don`t use this function.
 
-func cleanCollection(t *testing.T) {
+func cleanPlayerCollection(t *testing.T) {
 	err := players.deleteAllPlayers()
 	assert.NoError(t, err)
 }
 func TestPlayerService_AddPlayer(t *testing.T) {
-	defer cleanCollection(t)
+	defer cleanPlayerCollection(t)
 	id, err := players.AddPlayer("player1")
 	require.NoError(t, err)
 	assert.NotZero(t, id)
@@ -44,7 +44,7 @@ func TestPlayerService_AddPlayer(t *testing.T) {
 }
 
 func TestPlayerService_PlayerByID(t *testing.T) {
-	defer cleanCollection(t)
+	defer cleanPlayerCollection(t)
 
 	t.Run("Success", func(t *testing.T) {
 		id, err := players.AddPlayer("PlayerByID")
@@ -60,7 +60,7 @@ func TestPlayerService_PlayerByID(t *testing.T) {
 }
 
 func TestPlayerService_DeletePlayer(t *testing.T) {
-	defer cleanCollection(t)
+	defer cleanPlayerCollection(t)
 	id, err := players.AddPlayer("player1")
 	require.NoError(t, err)
 
@@ -79,7 +79,7 @@ func TestPlayerService_DeletePlayer(t *testing.T) {
 
 }
 func TestPlayerService_UpdatePlayer(t *testing.T) {
-	defer cleanCollection(t)
+	defer cleanPlayerCollection(t)
 
 	t.Run("Success", func(t *testing.T) {
 		balance := float32(12.34)
@@ -102,7 +102,7 @@ func TestPlayerService_UpdatePlayer(t *testing.T) {
 	})
 }
 func TestPlayerService_GetAndIncreasePlayerID(t *testing.T) {
-	defer cleanCollection(t)
+	defer cleanPlayerCollection(t)
 	id, err := players.getAndIncreasePlayerID()
 	require.NoError(t, err)
 	assert.NotZero(t, id)
@@ -112,7 +112,7 @@ func TestPlayerService_GetAndIncreasePlayerID(t *testing.T) {
 }
 
 func TestPlayerService_ListAllPlayers(t *testing.T) {
-	defer cleanCollection(t)
+	defer cleanPlayerCollection(t)
 	t.Run("Success", func(t *testing.T) {
 		names := []string{"p1", "p2", "p3"}
 		for _, n := range names {
