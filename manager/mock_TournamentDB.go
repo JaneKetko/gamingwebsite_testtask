@@ -45,16 +45,14 @@ func (_m *MockTournamentDB) DeleteTournament(id int) error {
 }
 
 // TournamentByID provides a mock function with given fields: id
-func (_m *MockTournamentDB) TournamentByID(id int) (*tournament.Tournament, error) {
+func (_m *MockTournamentDB) TournamentByID(id int) (tournament.Tournament, error) {
 	ret := _m.Called(id)
 
-	var r0 *tournament.Tournament
-	if rf, ok := ret.Get(0).(func(int) *tournament.Tournament); ok {
+	var r0 tournament.Tournament
+	if rf, ok := ret.Get(0).(func(int) tournament.Tournament); ok {
 		r0 = rf(id)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*tournament.Tournament)
-		}
+		r0 = ret.Get(0).(tournament.Tournament)
 	}
 
 	var r1 error

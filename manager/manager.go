@@ -25,7 +25,7 @@ type PlayerDB interface {
 
 // TournamentDB is interface for tournament database.
 type TournamentDB interface {
-	TournamentByID(id int) (*tournament.Tournament, error)
+	TournamentByID(id int) (tournament.Tournament, error)
 	CreateTournament(deposit float32) (int, error)
 	DeleteTournament(id int) error
 	UpdateTournament(id int, t tournament.Tournament) error
