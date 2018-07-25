@@ -57,15 +57,17 @@ func TestSettings_Parse(t *testing.T) {
 		expectedDBName        string
 		expectedAddress       string
 		expectedPlayers       string
+		expectedTournament    string
 		expectedServerAddress string
 		expectedConfig        string
 	}{
 		{
 			name:                  "success",
-			args:                  []string{"cmd", "--dbname=db", "-a=127.0.0.1", "--players=coll", "--server=:1234"},
+			args:                  []string{"cmd", "--dbname=db", "-a=127.0.0.1", "--players=coll", "--tournament=tour", "--server=:1234"},
 			expectedDBName:        "db",
 			expectedAddress:       "127.0.0.1",
 			expectedPlayers:       "coll",
+			expectedTournament:    "tour",
 			expectedServerAddress: ":1234",
 			expectedConfig:        "",
 		},
@@ -75,6 +77,7 @@ func TestSettings_Parse(t *testing.T) {
 			expectedDBName:        "db",
 			expectedAddress:       "127.0.0.1",
 			expectedPlayers:       "players",
+			expectedTournament:    "tournaments",
 			expectedServerAddress: ":8080",
 			expectedConfig:        "",
 		},
@@ -84,6 +87,7 @@ func TestSettings_Parse(t *testing.T) {
 			expectedDBName:        "db",
 			expectedAddress:       "127.0.0.1",
 			expectedPlayers:       "coll",
+			expectedTournament:    "tournaments",
 			expectedServerAddress: ":1234",
 			expectedConfig:        "testdata/filenotexist",
 		},
@@ -93,6 +97,7 @@ func TestSettings_Parse(t *testing.T) {
 			expectedDBName:        "testDB",
 			expectedAddress:       "10.10.10.10:27017",
 			expectedPlayers:       "players",
+			expectedTournament:    "tours",
 			expectedServerAddress: ":1234",
 			expectedConfig:        "testdata/config.yaml",
 		},

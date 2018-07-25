@@ -18,6 +18,8 @@ type settings struct {
 	DBName string `yaml:"dbname" long:"dbname" description:"Mongo db name" required:"true" default:"GamingDB"`
 	// PlayerCollection is name of players collection.
 	PlayerCollection string `yaml:"players" short:"p" long:"players" description:"Player collection" required:"true" default:"players"`
+	// TournamentCollection is name of tournament collection.
+	TournamentCollection string `yaml:"tournaments" short:"t" long:"tournaments" description:"Tournament collection" required:"true" default:"tournaments"`
 	// ServerAddress is address of server.
 	ServerAddress string `yaml:"server" short:"s" long:"server" description:"Server address" required:"true" default:":8080"`
 	// ConfigFile is file with configs.

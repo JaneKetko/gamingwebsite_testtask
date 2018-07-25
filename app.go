@@ -23,7 +23,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot get player collection: %v", err)
 	}
-	mngr := manager.NewManager(players, nil)
+	tours, err := session.Tournament(opts.DBName, opts.TournamentCollection)
+	mngr := manager.NewManager(players, tours)
 	s := server.NewServer(mngr)
 	s.Start(opts.ServerAddress)
 }
