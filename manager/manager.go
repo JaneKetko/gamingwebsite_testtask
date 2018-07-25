@@ -6,9 +6,10 @@ import (
 	"sync"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
+	"github.com/Ragnar-BY/gamingwebsite_testtask/tournament"
 )
 
-//go:generate mockery -name=PlayerDB -inpkg
+//go:generate mockery -name=PlayerDB -name=TournamentDB -inpkg
 var (
 	// ErrNotEnoughBalance is error for not enough balance.
 	ErrNotEnoughBalance = errors.New("player has not enough balance")
@@ -22,20 +23,29 @@ type PlayerDB interface {
 	UpdatePlayer(id int, player player.Player) error
 }
 
-// Manager manages players.
+// TournamentDB is interface for tournament database.
+type TournamentDB interface {
+	TournamentByID(id int) (*tournament.Tournament, error)
+	CreateTournament(deposit float32) (int, error)
+	DeleteTournament(id int) error
+	UpdateTournament(id int, t tournament.Tournament) error
+}
+
+// Manager manages players and tournaments.
 type Manager struct {
-	mute map[int]*sync.Mutex
-	DB   PlayerDB
+	mute     map[int]*sync.Mutex
+	PlayerDB PlayerDB
+	TourDB   TournamentDB
 }
 
 // NewManager is new manager
-func NewManager(db PlayerDB) Manager {
-	return Manager{mute: make(map[int]*sync.Mutex), DB: db}
+func NewManager(players PlayerDB, tours TournamentDB) Manager {
+	return Manager{mute: make(map[int]*sync.Mutex), PlayerDB: players, TourDB: tours}
 }
 
 // CreateNewPlayer creates new player in PlayerDB.
 func (m *Manager) CreateNewPlayer(name string) (int, error) {
-	id, err := m.DB.AddPlayer(name)
+	id, err := m.PlayerDB.AddPlayer(name)
 	if err != nil {
 		return 0, err
 	}
@@ -48,7 +58,7 @@ func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	pl, err := m.DB.PlayerByID(playerID)
+	pl, err := m.PlayerDB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
@@ -60,7 +70,7 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, e
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	pl, err := m.DB.PlayerByID(playerID)
+	pl, err := m.PlayerDB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
@@ -68,7 +78,7 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, e
 		return 0, ErrNotEnoughBalance
 	}
 	pl.Balance -= points
-	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
+	return pl.Balance, m.PlayerDB.UpdatePlayer(playerID, *pl)
 }
 
 // FundPointsToPlayer funds points to player.
@@ -76,12 +86,12 @@ func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, err
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	pl, err := m.DB.PlayerByID(playerID)
+	pl, err := m.PlayerDB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
 	}
 	pl.Balance += points
-	return pl.Balance, m.DB.UpdatePlayer(playerID, *pl)
+	return pl.Balance, m.PlayerDB.UpdatePlayer(playerID, *pl)
 }
 
 // RemovePlayer removes player.
@@ -90,7 +100,7 @@ func (m *Manager) RemovePlayer(playerID int) error {
 	m.createMutexIfNotExist(playerID)
 	m.mute[playerID].Lock()
 	defer m.mute[playerID].Unlock()
-	err := m.DB.DeletePlayer(playerID)
+	err := m.PlayerDB.DeletePlayer(playerID)
 	if err != nil {
 		return fmt.Errorf("cannot delete player with ID %v: %v", playerID, err)
 	}

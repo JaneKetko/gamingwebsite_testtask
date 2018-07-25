@@ -11,8 +11,9 @@ import (
 )
 
 func TestManager_CreateNewPlayer(t *testing.T) {
-	db := &MockPlayerDB{}
-	m := NewManager(db)
+	players := &MockPlayerDB{}
+	tours := &MockTournamentDB{}
+	m := NewManager(players, tours)
 
 	tests := []struct {
 		name          string
@@ -34,7 +35,7 @@ func TestManager_CreateNewPlayer(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		db.On("AddPlayer", tt.playerName).Return(tt.expectedID, tt.expectedError)
+		players.On("AddPlayer", tt.playerName).Return(tt.expectedID, tt.expectedError)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -48,12 +49,13 @@ func TestManager_CreateNewPlayer(t *testing.T) {
 			}
 		})
 	}
-	db.AssertExpectations(t)
+	players.AssertExpectations(t)
 }
 
 func TestManager_GetPlayerPoints(t *testing.T) {
-	db := &MockPlayerDB{}
-	m := NewManager(db)
+	players := &MockPlayerDB{}
+	tours := &MockTournamentDB{}
+	m := NewManager(players, tours)
 
 	tests := []struct {
 		name            string
@@ -78,7 +80,7 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		db.On("PlayerByID", tt.playerID).Return(tt.expectedPlayer, tt.expectedDBError)
+		players.On("PlayerByID", tt.playerID).Return(tt.expectedPlayer, tt.expectedDBError)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -91,12 +93,13 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 			}
 		})
 	}
-	db.AssertExpectations(t)
+	players.AssertExpectations(t)
 }
 
 func TestManager_TakePointsFromPlayer(t *testing.T) {
-	db := &MockPlayerDB{}
-	m := NewManager(db)
+	players := &MockPlayerDB{}
+	tours := &MockTournamentDB{}
+	m := NewManager(players, tours)
 
 	tests := []struct {
 		testName                  string
@@ -158,9 +161,9 @@ func TestManager_TakePointsFromPlayer(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		db.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
+		players.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
 		if tt.updatePlayer != nil {
-			db.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
+			players.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
 		}
 	}
 	for _, tt := range tests {
@@ -174,12 +177,13 @@ func TestManager_TakePointsFromPlayer(t *testing.T) {
 			}
 		})
 	}
-	db.AssertExpectations(t)
+	players.AssertExpectations(t)
 }
 
 func TestManager_FundPointsToPlayer(t *testing.T) {
-	db := &MockPlayerDB{}
-	m := NewManager(db)
+	players := &MockPlayerDB{}
+	tours := &MockTournamentDB{}
+	m := NewManager(players, tours)
 
 	tests := []struct {
 		testName                  string
@@ -231,9 +235,9 @@ func TestManager_FundPointsToPlayer(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		db.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
+		players.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
 		if tt.updatePlayer != nil {
-			db.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
+			players.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
 		}
 	}
 	for _, tt := range tests {
@@ -247,12 +251,13 @@ func TestManager_FundPointsToPlayer(t *testing.T) {
 			}
 		})
 	}
-	db.AssertExpectations(t)
+	players.AssertExpectations(t)
 }
 
 func TestManager_RemovePlayer(t *testing.T) {
-	db := &MockPlayerDB{}
-	m := NewManager(db)
+	players := &MockPlayerDB{}
+	tours := &MockTournamentDB{}
+	m := NewManager(players, tours)
 
 	tests := []struct {
 		testName      string
@@ -271,7 +276,7 @@ func TestManager_RemovePlayer(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		db.On("DeletePlayer", tt.playerID).Return(tt.expectedError)
+		players.On("DeletePlayer", tt.playerID).Return(tt.expectedError)
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
@@ -283,5 +288,5 @@ func TestManager_RemovePlayer(t *testing.T) {
 			}
 		})
 	}
-	db.AssertExpectations(t)
+	players.AssertExpectations(t)
 }
