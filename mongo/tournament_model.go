@@ -11,6 +11,7 @@ type TournamentModel struct {
 	TournamentID   int           `bson:"tournamentid"`
 	IsFinished     bool          `bson:"isfinished"`
 	Deposit        float32       `bson:"deposit"`
+	Fund           float32       `bson:"fund"`
 	ParticipantIDs []int         `bson:"participants,omitempty"`
 	WinnerID       *int          `bson:"winner,omitempty"`
 }
@@ -21,6 +22,7 @@ func (tm TournamentModel) ToTournament() tournament.Tournament {
 		ID:           tm.TournamentID,
 		IsFinished:   tm.IsFinished,
 		Deposit:      tm.Deposit,
+		Fund:         tm.Fund,
 		Participants: tm.ParticipantIDs,
 		Winner:       tm.WinnerID,
 	}
