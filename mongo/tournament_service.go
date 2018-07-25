@@ -52,7 +52,7 @@ func (ts *TourService) UpdateTournament(id int, tour tournament.Tournament) erro
 		"deposit":    tour.Deposit,
 	}
 	if tour.Participants != nil {
-		m["participiants"] = *tour.Participants
+		m["participiants"] = tour.Participants
 	}
 	if tour.Winner != nil {
 		m["winner"] = *tour.Winner

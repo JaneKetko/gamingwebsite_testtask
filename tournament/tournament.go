@@ -5,6 +5,6 @@ type Tournament struct {
 	ID           int
 	IsFinished   bool
 	Deposit      float32
-	Participants *[]int
+	Participants []int
 	Winner       *int
 }
