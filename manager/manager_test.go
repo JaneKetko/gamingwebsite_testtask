@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -15,6 +16,7 @@ func TestManager_CreateNewPlayer(t *testing.T) {
 	players := &MockPlayerDB{}
 	tours := &MockTournamentDB{}
 	m := NewManager(players, tours)
+	ctx := context.Background()
 
 	tests := []struct {
 		name          string
@@ -36,11 +38,11 @@ func TestManager_CreateNewPlayer(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		players.On("AddPlayer", tt.playerName).Return(tt.expectedID, tt.expectedError)
+		players.On("AddPlayer", ctx, tt.playerName).Return(tt.expectedID, tt.expectedError)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			id, err := m.CreateNewPlayer(tt.playerName)
+			id, err := m.CreateNewPlayer(ctx, tt.playerName)
 			if tt.expectedError != nil {
 				assert.Error(t, err, tt.expectedError.Error())
 
@@ -57,6 +59,7 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 	players := &MockPlayerDB{}
 	tours := &MockTournamentDB{}
 	m := NewManager(players, tours)
+	ctx := context.Background()
 
 	tests := []struct {
 		name            string
@@ -81,11 +84,11 @@ func TestManager_GetPlayerPoints(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		players.On("PlayerByID", tt.playerID).Return(tt.expectedPlayer, tt.expectedDBError)
+		players.On("PlayerByID", ctx, tt.playerID).Return(tt.expectedPlayer, tt.expectedDBError)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			balance, err := m.GetPlayerPoints(tt.playerID)
+			balance, err := m.GetPlayerPoints(ctx, tt.playerID)
 			if tt.expectedDBError != nil {
 				assert.Error(t, err, fmt.Sprintf("cannot get player ID: %v", tt.expectedDBError))
 			} else {
@@ -101,6 +104,7 @@ func TestManager_TakePointsFromPlayer(t *testing.T) {
 	players := &MockPlayerDB{}
 	tours := &MockTournamentDB{}
 	m := NewManager(players, tours)
+	ctx := context.Background()
 
 	tests := []struct {
 		testName                  string
@@ -162,14 +166,14 @@ func TestManager_TakePointsFromPlayer(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		players.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
+		players.On("PlayerByID", ctx, tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
 		if tt.updatePlayer != nil {
-			players.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
+			players.On("UpdatePlayer", ctx, tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
 		}
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			balance, err := m.TakePointsFromPlayer(tt.playerID, tt.points)
+			balance, err := m.TakePointsFromPlayer(ctx, tt.playerID, tt.points)
 			if tt.expectedError != "" {
 				assert.Error(t, err, tt.expectedError)
 			} else {
@@ -185,6 +189,7 @@ func TestManager_FundPointsToPlayer(t *testing.T) {
 	players := &MockPlayerDB{}
 	tours := &MockTournamentDB{}
 	m := NewManager(players, tours)
+	ctx := context.Background()
 
 	tests := []struct {
 		testName                  string
@@ -236,14 +241,14 @@ func TestManager_FundPointsToPlayer(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		players.On("PlayerByID", tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
+		players.On("PlayerByID", ctx, tt.playerID).Return(tt.expectedPlayerByID, tt.expectedPlayerByIDError)
 		if tt.updatePlayer != nil {
-			players.On("UpdatePlayer", tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
+			players.On("UpdatePlayer", ctx, tt.playerID, *tt.updatePlayer).Return(tt.expectedUpdatePlayerError)
 		}
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			balance, err := m.FundPointsToPlayer(tt.playerID, tt.points)
+			balance, err := m.FundPointsToPlayer(ctx, tt.playerID, tt.points)
 			if tt.expectedError != "" {
 				assert.Error(t, err, tt.expectedError)
 			} else {
@@ -259,6 +264,7 @@ func TestManager_RemovePlayer(t *testing.T) {
 	players := &MockPlayerDB{}
 	tours := &MockTournamentDB{}
 	m := NewManager(players, tours)
+	ctx := context.Background()
 
 	tests := []struct {
 		testName      string
@@ -277,11 +283,11 @@ func TestManager_RemovePlayer(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		players.On("DeletePlayer", tt.playerID).Return(tt.expectedError)
+		players.On("DeletePlayer", ctx, tt.playerID).Return(tt.expectedError)
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			err := m.RemovePlayer(tt.playerID)
+			err := m.RemovePlayer(ctx, tt.playerID)
 			if tt.expectedError != nil {
 				assert.Error(t, err)
 			} else {

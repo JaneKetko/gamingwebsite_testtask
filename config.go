@@ -15,7 +15,7 @@ type settings struct {
 	Address string `yaml:"dbaddress" short:"a" long:"dbaddress" description:"Mongo db address" required:"true" default:"127.0.0.1:27017"`
 	// DBName is name of MongoDB.
 	DBName string `yaml:"dbname" long:"dbname" description:"Mongo db name" required:"true" default:"GamingDB"`
-	// PlayerCollection is name of players collection.
+	// PlayerCollection is name of players collection or table.
 	PlayerCollection string `yaml:"players" short:"p" long:"players" description:"Player collection" required:"true" default:"players"`
 	// TournamentCollection is name of tournament collection.
 	TournamentCollection string `yaml:"tournaments" short:"t" long:"tournaments" description:"Tournament collection" required:"true" default:"tournaments"`
@@ -23,6 +23,12 @@ type settings struct {
 	ServerAddress string `yaml:"server" short:"s" long:"server" description:"Server address" required:"true" default:":8080"`
 	// ConfigFile is file with configs.
 	ConfigFile string `short:"f" long:"configfile" description:"File with config"`
+	// User is MySQL user.
+	User string `long:"user"`
+	// Password is MySQL password.
+	Password string `long:"password"`
+	// Type is type of db: (mysql or mongo).
+	Type string `long:"type" default:"mongo"`
 }
 
 // Parse parses command line parameters. If there is ConfigFile, then override params by values from file.

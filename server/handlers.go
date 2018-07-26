@@ -39,7 +39,7 @@ func (m *managerRouter) addPlayerHandler(w http.ResponseWriter, r *http.Request)
 		Error(w, http.StatusBadRequest, "wrong name")
 		return
 	}
-	id, err := m.manager.CreateNewPlayer(name)
+	id, err := m.manager.CreateNewPlayer(r.Context(), name)
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot create new player: %v", err))
 		return
@@ -54,7 +54,7 @@ func (m *managerRouter) balancePlayerHandler(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get playerId: %v", err))
 		return
 	}
-	balance, err := m.manager.GetPlayerPoints(playerID)
+	balance, err := m.manager.GetPlayerPoints(r.Context(), playerID)
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get player points: %v", err))
 		return
@@ -69,7 +69,7 @@ func (m *managerRouter) fundPointsHandler(w http.ResponseWriter, r *http.Request
 		Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	balance, err := m.manager.FundPointsToPlayer(playerID, points)
+	balance, err := m.manager.FundPointsToPlayer(r.Context(), playerID, points)
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot fund points to player: %v", err))
 		return
@@ -84,7 +84,7 @@ func (m *managerRouter) takePointsHandler(w http.ResponseWriter, r *http.Request
 		Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	balance, err := m.manager.TakePointsFromPlayer(playerID, points)
+	balance, err := m.manager.TakePointsFromPlayer(r.Context(), playerID, points)
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot take points from player: %v", err))
 		return
@@ -98,7 +98,7 @@ func (m *managerRouter) removePlayerHandler(w http.ResponseWriter, r *http.Reque
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot get playerId: %v", err))
 		return
 	}
-	err = m.manager.RemovePlayer(playerID)
+	err = m.manager.RemovePlayer(r.Context(), playerID)
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("cannot remove player: %v", err))
 		return
