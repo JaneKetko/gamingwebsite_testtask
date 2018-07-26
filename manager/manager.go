@@ -3,7 +3,9 @@ package manager
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"sync"
+	"time"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/player"
 	"github.com/Ragnar-BY/gamingwebsite_testtask/tournament"
@@ -33,14 +35,22 @@ type TournamentDB interface {
 
 // Manager manages players and tournaments.
 type Manager struct {
-	mute     map[int]*sync.Mutex
-	PlayerDB PlayerDB
-	TourDB   TournamentDB
+	mutePlayers map[int]*sync.Mutex
+	PlayerDB    PlayerDB
+	muteTours   map[int]*sync.Mutex
+	TourDB      TournamentDB
+	random      *rand.Rand
 }
 
 // NewManager is new manager
 func NewManager(players PlayerDB, tours TournamentDB) Manager {
-	return Manager{mute: make(map[int]*sync.Mutex), PlayerDB: players, TourDB: tours}
+	return Manager{
+		mutePlayers: make(map[int]*sync.Mutex),
+		PlayerDB:    players,
+		muteTours:   make(map[int]*sync.Mutex),
+		TourDB:      tours,
+		random:      rand.New(rand.NewSource(time.Now().UnixNano())),
+	}
 }
 
 // CreateNewPlayer creates new player in PlayerDB.
@@ -49,15 +59,15 @@ func (m *Manager) CreateNewPlayer(name string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	m.createMutexIfNotExist(id)
+	m.createPlayerMutexIfNotExist(id)
 	return id, nil
 }
 
 // GetPlayerPoints gets player points.
 func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
-	m.createMutexIfNotExist(playerID)
-	m.mute[playerID].Lock()
-	defer m.mute[playerID].Unlock()
+	m.createPlayerMutexIfNotExist(playerID)
+	m.mutePlayers[playerID].Lock()
+	defer m.mutePlayers[playerID].Unlock()
 	pl, err := m.PlayerDB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
@@ -67,9 +77,9 @@ func (m *Manager) GetPlayerPoints(playerID int) (float32, error) {
 
 // TakePointsFromPlayer takes points from player.
 func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, error) {
-	m.createMutexIfNotExist(playerID)
-	m.mute[playerID].Lock()
-	defer m.mute[playerID].Unlock()
+	m.createPlayerMutexIfNotExist(playerID)
+	m.mutePlayers[playerID].Lock()
+	defer m.mutePlayers[playerID].Unlock()
 	pl, err := m.PlayerDB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
@@ -83,9 +93,9 @@ func (m *Manager) TakePointsFromPlayer(playerID int, points float32) (float32, e
 
 // FundPointsToPlayer funds points to player.
 func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, error) {
-	m.createMutexIfNotExist(playerID)
-	m.mute[playerID].Lock()
-	defer m.mute[playerID].Unlock()
+	m.createPlayerMutexIfNotExist(playerID)
+	m.mutePlayers[playerID].Lock()
+	defer m.mutePlayers[playerID].Unlock()
 	pl, err := m.PlayerDB.PlayerByID(playerID)
 	if err != nil {
 		return 0, fmt.Errorf("cannot get player ID: %v", err)
@@ -97,9 +107,9 @@ func (m *Manager) FundPointsToPlayer(playerID int, points float32) (float32, err
 // RemovePlayer removes player.
 func (m *Manager) RemovePlayer(playerID int) error {
 	//TODO: if we remove player, should we remove mutex from map, and how if should
-	m.createMutexIfNotExist(playerID)
-	m.mute[playerID].Lock()
-	defer m.mute[playerID].Unlock()
+	m.createPlayerMutexIfNotExist(playerID)
+	m.mutePlayers[playerID].Lock()
+	defer m.mutePlayers[playerID].Unlock()
 	err := m.PlayerDB.DeletePlayer(playerID)
 	if err != nil {
 		return fmt.Errorf("cannot delete player with ID %v: %v", playerID, err)
@@ -107,8 +117,100 @@ func (m *Manager) RemovePlayer(playerID int) error {
 	return nil
 }
 
-func (m *Manager) createMutexIfNotExist(playerID int) {
-	if _, ok := m.mute[playerID]; !ok {
-		m.mute[playerID] = &sync.Mutex{}
+func (m *Manager) createPlayerMutexIfNotExist(playerID int) {
+	if _, ok := m.mutePlayers[playerID]; !ok {
+		m.mutePlayers[playerID] = &sync.Mutex{}
+	}
+}
+
+// AnnounceTournament creates tournament in tournamentDB.
+func (m *Manager) AnnounceTournament(deposit float32) (int, error) {
+	if deposit <= 0 {
+		return 0, errors.New("cannot announce tournament: deposit is negative")
+	}
+	id, err := m.TourDB.CreateTournament(deposit)
+	if err != nil {
+		return 0, fmt.Errorf("cannot announce tournament: %v", err)
+	}
+	m.createToursMutexIfNotExist(id)
+	return id, nil
+}
+
+// JoinTournament add player to tournament if possible.
+// Player add tour.Deposit to tour.Fund.
+func (m *Manager) JoinTournament(tourID int, playerID int) error {
+	tour, err := m.TourDB.TournamentByID(tourID)
+	if err != nil {
+		return fmt.Errorf("cannot join to tournament: %v", err)
+	}
+	if tour.IsFinished {
+		return errors.New("cannot join to tournament: tournament is finished")
+	}
+
+	_, err = m.TakePointsFromPlayer(playerID, tour.Deposit)
+	if err != nil {
+		return fmt.Errorf("cannot join to tournament: %v", err)
+	}
+	m.createToursMutexIfNotExist(tourID)
+	m.muteTours[tourID].Lock()
+	defer m.muteTours[tourID].Unlock()
+
+	if tour.Participants == nil {
+		tour.Participants = make([]int, 0)
+	}
+	tour.Participants = append(tour.Participants, playerID)
+	tour.Fund += tour.Deposit
+	err = m.TourDB.UpdateTournament(tourID, tour)
+	if err != nil {
+		return fmt.Errorf("cannot join to tournament: %v", err)
+	}
+	return nil
+}
+
+// ResultTournament count tournament result, if it is unknown
+// or return known results. Returns winner, prize.
+func (m *Manager) ResultTournament(tourID int) (*player.Player, float32, error) {
+	tour, err := m.TourDB.TournamentByID(tourID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
+	}
+	if tour.IsFinished {
+		if tour.Winner == nil {
+			return nil, 0, errors.New("cannot get tournament results: tournament is finished, by winner is unknown")
+		}
+		winner, err := m.PlayerDB.PlayerByID(*tour.Winner)
+		if err != nil {
+			return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
+		}
+		return winner, tour.Fund, nil
+	}
+	count := len(tour.Participants)
+	if count == 0 {
+		return nil, 0, errors.New("cannot get tournament results: there are not participants")
+	}
+	winnerID := m.random.Intn(count)
+	winner, err := m.PlayerDB.PlayerByID(winnerID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
+	}
+	m.createToursMutexIfNotExist(tourID)
+	m.muteTours[tourID].Lock()
+	defer m.muteTours[tourID].Unlock()
+
+	tour.Winner = &winnerID
+	tour.IsFinished = true
+	err = m.TourDB.UpdateTournament(tourID, tour)
+	if err != nil {
+		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
+	}
+	_, err = m.FundPointsToPlayer(winnerID, tour.Fund)
+	if err != nil {
+		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
+	}
+	return winner, tour.Fund, nil
+}
+func (m *Manager) createToursMutexIfNotExist(tourID int) {
+	if _, ok := m.muteTours[tourID]; !ok {
+		m.muteTours[tourID] = &sync.Mutex{}
 	}
 }

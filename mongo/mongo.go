@@ -53,6 +53,7 @@ func (s *Session) Players(dbname string, players string) (*PlayerService, error)
 	return &ps, nil
 }
 
+// Tournament returns new tournament service from DB.
 func (s *Session) Tournament(dbname string, tours string) (*TourService, error) {
 	tourCollection := s.session.DB(dbname).C(tours)
 	index := mgo.Index{

@@ -116,15 +116,15 @@ func TestTourService_GetAndIncreasePlayerID(t *testing.T) {
 func TestTourService_ListAllPlayers(t *testing.T) {
 	defer cleanToursCollection(t)
 	t.Run("Success", func(t *testing.T) {
-		deposites := []float32{1.0, 2.1, 3.21}
-		for _, d := range deposites {
+		deposits := []float32{1.0, 2.1, 3.21}
+		for _, d := range deposits {
 			_, err := tours.CreateTournament(d)
 			require.NoError(t, err)
 		}
 		trs, err := tours.listAllTours()
 		require.NoError(t, err)
-		require.Equal(t, len(deposites), len(trs))
-		for i, d := range deposites {
+		require.Equal(t, len(deposits), len(trs))
+		for i, d := range deposits {
 			assert.Equal(t, d, trs[i].Deposit)
 		}
 	})
@@ -132,15 +132,15 @@ func TestTourService_ListAllPlayers(t *testing.T) {
 
 func TestTourService_DeleteAllPlayers(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		deposites := []float32{1.0, 2.1, 3.21}
-		for _, d := range deposites {
+		deposits := []float32{1.0, 2.1, 3.21}
+		for _, d := range deposits {
 			_, err := tours.CreateTournament(d)
 			require.NoError(t, err)
 		}
 		trs, err := tours.listAllTours()
 		require.NoError(t, err)
 		l := len(trs)
-		assert.Equal(t, len(deposites), l)
+		assert.Equal(t, len(deposits), l)
 		err = tours.deleteAllTours()
 		require.NoError(t, err)
 
