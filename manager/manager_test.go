@@ -329,9 +329,10 @@ func TestManager_AnnounceTournament(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			tours.On("CreateTournament", tc.deposit).Return(tc.expectedID, tc.expectedError)
+			ctx := context.Background()
+			tours.On("CreateTournament", ctx, tc.deposit).Return(tc.expectedID, tc.expectedError)
 
-			id, err := m.AnnounceTournament(tc.deposit)
+			id, err := m.AnnounceTournament(ctx, tc.deposit)
 			if tc.expectedError != nil {
 				require.Error(t, err)
 			} else {
@@ -468,17 +469,18 @@ func TestManager_JoinTournament(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			tours.On("TournamentByID", tc.tourID).Return(tc.expectedTourByID, tc.expectedTourByIDError)
+			ctx := context.Background()
+			tours.On("TournamentByID", ctx, tc.tourID).Return(tc.expectedTourByID, tc.expectedTourByIDError)
 			if tc.expectedPlayerByID != nil || tc.expectedPlayerByIDError != nil {
-				players.On("PlayerByID", tc.playerID).Return(tc.expectedPlayerByID, tc.expectedPlayerByIDError)
+				players.On("PlayerByID", ctx, tc.playerID).Return(tc.expectedPlayerByID, tc.expectedPlayerByIDError)
 			}
 			if tc.updatePlayer != nil {
-				players.On("UpdatePlayer", tc.playerID, *tc.updatePlayer).Return(tc.expectedUpdatePlayerError)
+				players.On("UpdatePlayer", ctx, tc.playerID, *tc.updatePlayer).Return(tc.expectedUpdatePlayerError)
 			}
 			if tc.updateTournamentTour != nil {
-				tours.On("UpdateTournament", tc.tourID, *tc.updateTournamentTour).Return(tc.expectedUpdateTournamentError)
+				tours.On("UpdateTournament", ctx, tc.tourID, *tc.updateTournamentTour).Return(tc.expectedUpdateTournamentError)
 			}
-			err := m.JoinTournament(tc.tourID, tc.playerID)
+			err := m.JoinTournament(ctx, tc.tourID, tc.playerID)
 			if tc.expectedError != nil {
 				require.Error(t, err)
 			} else {

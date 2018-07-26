@@ -32,7 +32,7 @@ func startWithMySQL(opts settings) {
 	}
 	ps := mysql.PlayerService{DB: sql, Name: opts.PlayerCollection}
 
-	mngr := manager.NewManager(ps)
+	mngr := manager.NewManager(ps, nil)
 	s := server.NewServer(mngr)
 	s.Start(opts.ServerAddress)
 

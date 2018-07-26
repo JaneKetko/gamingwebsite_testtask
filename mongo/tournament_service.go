@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Ragnar-BY/gamingwebsite_testtask/tournament"
@@ -20,14 +21,14 @@ func NewTourService(tours *mgo.Collection, counter *mgo.Collection) TourService 
 }
 
 // TournamentByID returns tournament by id, if exist.
-func (ts *TourService) TournamentByID(id int) (tournament.Tournament, error) {
+func (ts *TourService) TournamentByID(_ context.Context, id int) (tournament.Tournament, error) {
 	model := TournamentModel{}
 	err := ts.tours.Find(bson.M{"tournamentid": id}).One(&model)
 	return model.ToTournament(), err
 }
 
 // CreateTournament inserts new tournament in collection.
-func (ts *TourService) CreateTournament(deposit float32) (int, error) {
+func (ts *TourService) CreateTournament(_ context.Context, deposit float32) (int, error) {
 	tourID, err := ts.getAndIncreaseTournamentID()
 	if err != nil {
 		return 0, fmt.Errorf("cannot get new id: %v", err)
@@ -41,12 +42,12 @@ func (ts *TourService) CreateTournament(deposit float32) (int, error) {
 }
 
 // DeleteTournament deletes Tournament by id from collection, if possible.
-func (ts *TourService) DeleteTournament(id int) error {
+func (ts *TourService) DeleteTournament(_ context.Context, id int) error {
 	return ts.tours.Remove(bson.M{"tournamentid": id})
 }
 
 // UpdateTournament updates player with player id from collection with player.Player, if possible.
-func (ts *TourService) UpdateTournament(id int, tour tournament.Tournament) error {
+func (ts *TourService) UpdateTournament(_ context.Context, id int, tour tournament.Tournament) error {
 	m := bson.M{
 		"isfinished": tour.IsFinished,
 		"deposit":    tour.Deposit,
@@ -74,7 +75,7 @@ func (ts *TourService) getAndIncreaseTournamentID() (int, error) {
 	return result["tournamentid"].(int), nil
 }
 
-func (ts *TourService) deleteAllTours() error {
+func (ts *TourService) deleteAllTours(_ context.Context) error {
 	_, err := ts.tours.RemoveAll(nil)
 	if err != nil {
 		return fmt.Errorf("cannot remove all tours")
@@ -82,7 +83,7 @@ func (ts *TourService) deleteAllTours() error {
 	return nil
 }
 
-func (ts *TourService) listAllTours() ([]tournament.Tournament, error) {
+func (ts *TourService) listAllTours(_ context.Context) ([]tournament.Tournament, error) {
 	var tournamentModels []TournamentModel
 	err := ts.tours.Find(nil).All(&tournamentModels)
 	if err != nil {

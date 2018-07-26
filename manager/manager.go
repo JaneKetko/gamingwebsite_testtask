@@ -28,10 +28,10 @@ type PlayerDB interface {
 
 // TournamentDB is interface for tournament database.
 type TournamentDB interface {
-	TournamentByID(id int) (tournament.Tournament, error)
-	CreateTournament(deposit float32) (int, error)
-	DeleteTournament(id int) error
-	UpdateTournament(id int, t tournament.Tournament) error
+	TournamentByID(ctx context.Context, id int) (tournament.Tournament, error)
+	CreateTournament(ctx context.Context, deposit float32) (int, error)
+	DeleteTournament(ctx context.Context, id int) error
+	UpdateTournament(ctx context.Context, id int, t tournament.Tournament) error
 }
 
 // Manager manages players and tournaments.
@@ -125,11 +125,11 @@ func (m *Manager) createPlayerMutexIfNotExist(playerID int) {
 }
 
 // AnnounceTournament creates tournament in tournamentDB.
-func (m *Manager) AnnounceTournament(deposit float32) (int, error) {
+func (m *Manager) AnnounceTournament(ctx context.Context, deposit float32) (int, error) {
 	if deposit <= 0 {
 		return 0, errors.New("cannot announce tournament: deposit is negative")
 	}
-	id, err := m.TourDB.CreateTournament(deposit)
+	id, err := m.TourDB.CreateTournament(ctx, deposit)
 	if err != nil {
 		return 0, fmt.Errorf("cannot announce tournament: %v", err)
 	}
@@ -139,8 +139,8 @@ func (m *Manager) AnnounceTournament(deposit float32) (int, error) {
 
 // JoinTournament add player to tournament if possible.
 // Player add tour.Deposit to tour.Fund.
-func (m *Manager) JoinTournament(tourID int, playerID int) error {
-	tour, err := m.TourDB.TournamentByID(tourID)
+func (m *Manager) JoinTournament(ctx context.Context, tourID int, playerID int) error {
+	tour, err := m.TourDB.TournamentByID(ctx, tourID)
 	if err != nil {
 		return fmt.Errorf("cannot join to tournament: %v", err)
 	}
@@ -148,7 +148,7 @@ func (m *Manager) JoinTournament(tourID int, playerID int) error {
 		return errors.New("cannot join to tournament: tournament is finished")
 	}
 
-	_, err = m.TakePointsFromPlayer(playerID, tour.Deposit)
+	_, err = m.TakePointsFromPlayer(ctx, playerID, tour.Deposit)
 	if err != nil {
 		return fmt.Errorf("cannot join to tournament: %v", err)
 	}
@@ -161,7 +161,7 @@ func (m *Manager) JoinTournament(tourID int, playerID int) error {
 	}
 	tour.Participants = append(tour.Participants, playerID)
 	tour.Fund += tour.Deposit
-	err = m.TourDB.UpdateTournament(tourID, tour)
+	err = m.TourDB.UpdateTournament(ctx, tourID, tour)
 	if err != nil {
 		return fmt.Errorf("cannot join to tournament: %v", err)
 	}
@@ -170,8 +170,8 @@ func (m *Manager) JoinTournament(tourID int, playerID int) error {
 
 // ResultTournament count tournament result, if it is unknown
 // or return known results. Returns winner, prize.
-func (m *Manager) ResultTournament(tourID int) (*player.Player, float32, error) {
-	tour, err := m.TourDB.TournamentByID(tourID)
+func (m *Manager) ResultTournament(ctx context.Context, tourID int) (*player.Player, float32, error) {
+	tour, err := m.TourDB.TournamentByID(ctx, tourID)
 	if err != nil {
 		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
 	}
@@ -179,7 +179,7 @@ func (m *Manager) ResultTournament(tourID int) (*player.Player, float32, error) 
 		if tour.Winner == nil {
 			return nil, 0, errors.New("cannot get tournament results: tournament is finished, by winner is unknown")
 		}
-		winner, err := m.PlayerDB.PlayerByID(*tour.Winner)
+		winner, err := m.PlayerDB.PlayerByID(ctx, *tour.Winner)
 		if err != nil {
 			return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
 		}
@@ -190,7 +190,7 @@ func (m *Manager) ResultTournament(tourID int) (*player.Player, float32, error) 
 		return nil, 0, errors.New("cannot get tournament results: there are not participants")
 	}
 	winnerID := m.random.Intn(count)
-	winner, err := m.PlayerDB.PlayerByID(winnerID)
+	winner, err := m.PlayerDB.PlayerByID(ctx, winnerID)
 	if err != nil {
 		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
 	}
@@ -200,11 +200,11 @@ func (m *Manager) ResultTournament(tourID int) (*player.Player, float32, error) 
 
 	tour.Winner = &winnerID
 	tour.IsFinished = true
-	err = m.TourDB.UpdateTournament(tourID, tour)
+	err = m.TourDB.UpdateTournament(ctx, tourID, tour)
 	if err != nil {
 		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
 	}
-	_, err = m.FundPointsToPlayer(winnerID, tour.Fund)
+	_, err = m.FundPointsToPlayer(ctx, winnerID, tour.Fund)
 	if err != nil {
 		return nil, 0, fmt.Errorf("cannot get tournament results: %v", err)
 	}
