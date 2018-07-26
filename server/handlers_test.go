@@ -12,6 +12,7 @@ import (
 	"github.com/gavv/httpexpect"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 const (
@@ -57,10 +58,11 @@ func TestManagerRouter_AddPlayerHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			playerName := ""
 			if tc.dbArgs != nil {
-				db.On("AddPlayer", tc.dbArgs.playerName).Return(tc.dbArgs.returnID, tc.dbArgs.returnError)
+				db.On("AddPlayer", mock.Anything, tc.dbArgs.playerName).Return(tc.dbArgs.returnID, tc.dbArgs.returnError)
 				playerName = tc.dbArgs.playerName
 			}
 			res := e.Request(http.MethodPost, "/add").WithQuery("name", playerName).Expect()
+
 			res.Status(tc.expectedStatus)
 			if tc.expectedValue != 0 {
 				res.JSON().Number().Equal(tc.expectedValue)
@@ -121,7 +123,7 @@ func TestManagerRouter_balancePlayerHandler(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.dbArgs != nil {
-				db.On("PlayerByID", tc.dbArgs.playerID).Return(tc.dbArgs.returnPlayer, tc.dbArgs.returnError)
+				db.On("PlayerByID", mock.Anything, tc.dbArgs.playerID).Return(tc.dbArgs.returnPlayer, tc.dbArgs.returnError)
 			}
 			expect := e.Request(http.MethodGet, "/balance/"+tc.path).Expect()
 			expect.Status(tc.expectedStatus)
@@ -141,11 +143,11 @@ func TestManagerRouter_fundPointsHandler(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	t.Run("Success", func(t *testing.T) {
-		db.On("PlayerByID", 1).Return(&player.Player{
+		db.On("PlayerByID", mock.Anything, 1).Return(&player.Player{
 			ID:      1,
 			Balance: 1.5,
 		}, nil)
-		db.On("UpdatePlayer", 1, player.Player{
+		db.On("UpdatePlayer", mock.Anything, 1, player.Player{
 			ID:      1,
 			Balance: 4.0,
 		}).Return(nil)
@@ -157,7 +159,7 @@ func TestManagerRouter_fundPointsHandler(t *testing.T) {
 			Expect().Status(http.StatusBadRequest)
 	})
 	t.Run("DBError", func(t *testing.T) {
-		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
+		db.On("PlayerByID", mock.Anything, 3).Return(nil, errors.New("some error"))
 		e.Request(http.MethodPut, "/fund/3").WithQuery("points", 2.5).
 			Expect().Status(http.StatusBadRequest)
 	})
@@ -171,11 +173,11 @@ func TestManagerRouter_takePointsHandler(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	t.Run("Success", func(t *testing.T) {
-		db.On("PlayerByID", 1).Return(&player.Player{
+		db.On("PlayerByID", mock.Anything, 1).Return(&player.Player{
 			ID:      1,
 			Balance: 4.0,
 		}, nil)
-		db.On("UpdatePlayer", 1, player.Player{
+		db.On("UpdatePlayer", mock.Anything, 1, player.Player{
 			ID:      1,
 			Balance: 1.5,
 		}).Return(nil)
@@ -187,7 +189,7 @@ func TestManagerRouter_takePointsHandler(t *testing.T) {
 			Expect().Status(http.StatusBadRequest)
 	})
 	t.Run("DBManagerError", func(t *testing.T) {
-		db.On("PlayerByID", 3).Return(nil, errors.New("some error"))
+		db.On("PlayerByID", mock.Anything, 3).Return(nil, errors.New("some error"))
 		e.Request(http.MethodPut, "/take/3").WithQuery("points", 2.5).
 			Expect().Status(http.StatusBadRequest)
 	})
@@ -221,7 +223,7 @@ func TestManagerRouter_RemovePlayer(t *testing.T) {
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			db.On("DeletePlayer", tc.playerID).Return(tc.returnError)
+			db.On("DeletePlayer", mock.Anything, tc.playerID).Return(tc.returnError)
 			e.Request(http.MethodDelete, "/remove/"+strconv.Itoa(tc.playerID)).
 				Expect().Status(tc.expectedStatus)
 		})
